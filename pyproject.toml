@@ -1,0 +1,113 @@
+[build-system]
+requires = ["uv_build>=0.13.6,<0.14.0"]
+build-backend = "uv_build"
+
+[project]
+name = "brighteyes"
+version = "0.1.0"
+description = "Toolbox for image scanning microscopy with array detectors"
+readme = "README.md"
+requires-python = ">=3.11"
+license = "GPL-3.0-or-later"
+license-files = ["LICENSE", "src/brighteyes/mcs/reader/LICENSE"]
+authors = [
+  { name = "Alessandro Zunino", email = "alessandro.zunino@iit.it" },
+  { name = "Eli Slenders", email = "eli.slenders@iit.it" },
+  { name = "Mattia Donato", email = "mattia.donato@iit.it" },
+]
+
+[project.urls]
+Homepage = "https://github.com/VicidominiLab/brighteyes"
+Source = "https://github.com/VicidominiLab/brighteyes"
+Issues = "https://github.com/VicidominiLab/brighteyes/issues"
+
+[project.optional-dependencies]
+imaging = [
+    "brighteyes[mcs]",
+    "einops>=0.8.2",
+    "h5py>=3.16.0",
+    "joblib>=1.6.0",
+    "matplotlib>=3.11.2",
+    "matplotlib-scalebar>=0.9.0",
+    "numpy>=2.4.6",
+    "psf-generator<=0.0.2",
+    "requests>=2.34.2",
+    "scikit-image>=0.26.0",
+    "scikit-learn>=1.9.1",
+    "scipy>=1.17.1",
+    "statsmodels>=0.15.0",
+    "torch>=2.15.0",
+    "torchvision>=0.29.2",
+    "tqdm>=4.70.1",
+    "zernikepy>=0.0.5",
+]
+mcs = [
+    "h5py>=3.16.0",
+    "joblib>=1.6.0",
+    "matplotlib>=3.11.2",
+    "numpy>=2.4.6",
+    "pandas>=3.1.0",
+    "scipy>=1.17.1",
+    "torch>=2.15.0",
+    "tqdm>=4.70.1",
+]
+
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true
+
+[tool.uv.sources]
+torch = { index = "pytorch-cpu" }
+torchvision = { index = "pytorch-cpu" }
+brighteyes-ism = { git = "https://github.com/VicidominiLab/BrightEyes-ISM", rev = "d799720" }
+brighteyes-flism = { git = "https://github.com/VicidominiLab/BrightEyes-FLISM", rev = "85f0d96" }
+brighteyes = { workspace = true }
+brighteyes-mcs-reader = { git = "https://github.com/VicidominiLab/BrightEyes-MCS-Reader", rev = "8b81d62" }
+brighteyes-mcs-dataprep = { git = "https://github.com/VicidominiLab/BrightEyes-MCS-DataPrep", rev = "821248e" }
+s2ism = { git = "https://github.com/VicidominiLab/s2ISM", rev = "10bb5fc" }
+birfi = { git = "https://github.com/VicidominiLab/birfi", rev = "4ea6c4d" }
+
+[dependency-groups]
+dev = [
+    "pytest>=9.2.0",
+    "ruff>=0.17.3",
+]
+examples = [
+    "jupyterlab>=4.6.5",
+    "nbformat==5.8.0",
+]
+reference = [
+    "birfi",
+    "brighteyes-flism",
+    "brighteyes-ism",
+    "brighteyes-mcs-dataprep",
+    "brighteyes-mcs-reader",
+    "s2ism",
+]
+
+[tool.uv]
+required-environments = ["sys_platform == 'win32' and platform_machine == 'AMD64'"]
+override-dependencies = ["tdqm; python_version < '0'"]
+
+[tool.ruff]
+line-length = 88
+extend-exclude = [
+    "src/brighteyes/imaging",
+    "src/brighteyes/mcs",
+    "tests/mcs",
+    "examples",
+    "docs/imaging-ism",
+]
+
+[tool.ruff.lint]
+extend-select = ["D", "E402", "PLC0415"]
+
+[tool.ruff.lint.pydocstyle]
+convention = "numpy"
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["D"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

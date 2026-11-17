@@ -1,0 +1,40 @@
+{
+  "ism-cell-full": {
+    "url": "https://zenodo.org/records/7343112/files/Cell_ISM_dataset.h5",
+    "filename": "Cell_ISM_dataset.h5",
+    "size": 3187611072,
+    "checksum": "md5:24dd933c66316495bf48cb2cef3e237c"
+  },
+  "ism-psf-full": {
+    "url": "https://zenodo.org/records/7343112/files/PSF_ISM_dataset.h5",
+    "filename": "PSF_ISM_dataset.h5",
+    "size": 1682995376,
+    "checksum": "md5:acbc7e3210811c28b8896f7799105e50"
+  },
+  "s2ism-full": {
+    "url": "https://zenodo.org/records/11284051/files/h5_files_s2ism.zip",
+    "filename": "h5_files_s2ism.zip",
+    "size": 3922127512,
+    "checksum": "md5:6c09c31be8ff54833c6d6201dff21e01"
+  },
+  "birfi-small": {
+    "path": "birfi-small.npz",
+    "size": 10789,
+    "sha256": "82e1c73d14b370ad808ba6d6a992aafb9eab5c4e7c61c8f7049b2ec3f9757220"
+  },
+  "ism-cell-small": {
+    "path": "ism-cell-small.npz",
+    "size": 259061,
+    "sha256": "60fd428b6470b02590ff19a22d280e6af106cc4110162d5fe2c1e5d31937a2cb"
+  },
+  "tomm20-deconv3-raw-small": {
+    "path": "tomm20-deconv3-raw-small.npz",
+    "size": 2458294,
+    "sha256": "bd5fb6ad66235367c7a360cf4f261c758bce6ebaae3fdbffa70124213717a007"
+  },
+  "tomm20-deconv3-psf-small": {
+    "path": "tomm20-deconv3-psf-small.npz",
+    "size": 773525,
+    "sha256": "3d578f0aeacba7ea3d5cd0e2fc47488a468fe504ba61d775c87253129b94c9ca"
+  }
+}

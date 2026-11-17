@@ -1,0 +1,139 @@
+{
+  "birfi-simulation": {
+    "status": "captured",
+    "dataset": "birfi-small",
+    "parameters": {
+      "dt": 0.01,
+      "lr": 0.05,
+      "steps": 2000,
+      "rl_iterations": 100,
+      "regularization": 3
+    },
+    "source_files": [
+      {
+        "path": "examples/imaging/birfi/demo_simulation.ipynb",
+        "revision": "9d7f078"
+      }
+    ],
+    "selection": {
+      "time_bins": 200,
+      "channels": 9
+    },
+    "coverage": "CPU fitting and IRF retrieval with the example simulation dimensions and parameters",
+    "expected": "imaging/birfi-simulation.npz",
+    "capture": "imaging/birfi-simulation.json"
+  },
+  "ism-apr": {
+    "status": "captured",
+    "dataset": "ism-cell-small",
+    "parameters": {
+      "usf": 100,
+      "ref": 12,
+      "pxsize": 0.04004004004004004,
+      "apodize": true,
+      "filter_sigma": 1,
+      "mode": "interp"
+    },
+    "source_files": [
+      {
+        "source_url": "https://zenodo.org/records/7343112/files/Cell_ISM_dataset.h5",
+        "source_checksum": "md5:24dd933c66316495bf48cb2cef3e237c",
+        "full_checksum_verified": false,
+        "dataset": "/data",
+        "axis_order": "rzxytc"
+      }
+    ],
+    "selection": [
+      [
+        0,
+        1
+      ],
+      [
+        0,
+        1
+      ],
+      [
+        472,
+        504
+      ],
+      [
+        472,
+        504
+      ],
+      [
+        0,
+        50
+      ],
+      [
+        0,
+        25
+      ]
+    ],
+    "coverage": "APR and even/odd FRC stages on the measured region at native sampling; full-image notebook preprocessing not validated",
+    "expected": "imaging/ism-apr.npz",
+    "capture": "imaging/ism-apr.json"
+  },
+  "ism-frc": {
+    "status": "captured",
+    "dataset": "ism-cell-small",
+    "parameters": {
+      "px": 0.04004004004004004,
+      "method": "fixed",
+      "smoothing": "fit",
+      "apr": {
+        "usf": 100,
+        "ref": 12,
+        "pxsize": 0.04004004004004004,
+        "apodize": true,
+        "filter_sigma": 1,
+        "mode": "interp"
+      }
+    },
+    "source_files": [
+      {
+        "source_url": "https://zenodo.org/records/7343112/files/Cell_ISM_dataset.h5",
+        "source_checksum": "md5:24dd933c66316495bf48cb2cef3e237c",
+        "full_checksum_verified": false,
+        "dataset": "/data",
+        "axis_order": "rzxytc"
+      }
+    ],
+    "selection": [
+      [
+        0,
+        1
+      ],
+      [
+        0,
+        1
+      ],
+      [
+        472,
+        504
+      ],
+      [
+        472,
+        504
+      ],
+      [
+        0,
+        50
+      ],
+      [
+        0,
+        25
+      ]
+    ],
+    "coverage": "APR and even/odd FRC stages on the measured region at native sampling; full-image notebook preprocessing not validated",
+    "expected": "imaging/ism-frc.npz",
+    "capture": "imaging/ism-frc.json"
+  },
+  "s2ism-experimental": {
+    "status": "unavailable",
+    "reason": "The published archive has not been downloaded and validated"
+  },
+  "flism-examples": {
+    "status": "unavailable",
+    "reason": "FLISM source and data workflows are deferred for maintainer review"
+  }
+}
