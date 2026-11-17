@@ -71,6 +71,16 @@ def test_capture_preserves_output_values(capture, tmp_path):
     }
 
 
+def test_capture_reference_survives_replaced_pr_history(capture):
+    """Keep the reference source available without the replaced PR branches."""
+    subprocess.run(
+        ["git", "merge-base", "--is-ancestor", capture["source_revision"], "HEAD"],
+        cwd=Path(__file__).parents[2],
+        check=True,
+        capture_output=True,
+    )
+
+
 def test_capture_uses_reference_source_with_relative_cache(checkout_tmp_path):
     """Run the fixed source from a cache path relative to the checkout."""
     root = Path(__file__).parents[2]
