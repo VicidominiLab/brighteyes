@@ -1,3 +1,4 @@
+# Origin: VicidominiLab/BrightEyes-MCS-Reader, tests/test_reader.py at 8b81d62.
 """Tests for the BrightEyes-MCS HDF5 reader."""
 
 from __future__ import annotations
@@ -6,7 +7,7 @@ import numpy as np
 import pytest
 from numpy.testing import assert_array_equal
 
-from brighteyes_mcs_reader import (
+from brighteyes.mcs.reader import (
     is_brightemcs_h5,
     list_datasets,
     read_signal,

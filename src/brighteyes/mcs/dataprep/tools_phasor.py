@@ -1,4 +1,5 @@
-"""Minimal lifetime estimators used by :mod:`brighteyes_mcs_dataprep.alignment`."""
+# Origin: VicidominiLab/BrightEyes-MCS-DataPrep, src/brighteyes_mcs_dataprep/tools_phasor.py at 821248e.
+"""Minimal lifetime estimators used by :mod:`brighteyes.mcs.dataprep.alignment`."""
 
 import numpy as np
 from scipy.signal import savgol_filter

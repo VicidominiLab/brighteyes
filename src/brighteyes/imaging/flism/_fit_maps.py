@@ -1,3 +1,4 @@
+# Origin: VicidominiLab/BrightEyes-FLISM, src/brighteyes_flism/_fit_maps.py at 85f0d96.
 """Fit-map helpers exported by :mod:`brighteyes.imaging.flism`."""
 
 from __future__ import annotations
@@ -7,7 +8,7 @@ from contextlib import contextmanager
 import numpy as np
 from tqdm.auto import tqdm
 
-from brighteyes_mcs_dataprep import Alignment
+from brighteyes.mcs.dataprep import Alignment
 
 
 def _fit_map_pixel_chunk(indices, histograms, **worker_kwargs):
@@ -84,7 +85,7 @@ def generate_fit_maps(
     """
     Fit every pixel histogram in a ``(y, x, t)`` image and return fit maps.
 
-    This mirrors ``brighteyes_mcs_dataprep.Alignment.generate_fit_maps`` but fixes
+    This mirrors ``brighteyes.mcs.dataprep.Alignment.generate_fit_maps`` but fixes
     progress reporting for parallel runs. The upstream implementation wraps
     joblib's submission iterator, so tqdm reports queued chunks rather than
     completed work. Here tqdm is updated when pixels actually finish.

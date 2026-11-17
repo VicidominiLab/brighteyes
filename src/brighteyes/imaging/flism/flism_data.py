@@ -1,3 +1,4 @@
+# Origin: VicidominiLab/BrightEyes-FLISM, src/brighteyes_flism/flism_data.py at 85f0d96.
 """Legacy FLIM data containers."""
 
 import warnings
@@ -5,7 +6,7 @@ import warnings
 import h5py
 import numpy as np
 
-from brighteyes_mcs_reader import reader_legacy
+from brighteyes.mcs.reader import reader_legacy
 
 from .tools_phasor import calculate_phasor
 

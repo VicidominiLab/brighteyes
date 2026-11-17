@@ -1,7 +1,8 @@
+# Origin: VicidominiLab/BrightEyes-MCS-Reader, tests/test_reader_legacy.py at 8b81d62.
 import h5py
 import numpy as np
 
-from brighteyes_mcs_reader import reader_legacy
+from brighteyes.mcs.reader import reader_legacy
 
 
 def _write_minimal_v006_file(path):

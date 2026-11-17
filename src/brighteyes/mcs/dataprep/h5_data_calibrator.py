@@ -1,3 +1,4 @@
+# Origin: VicidominiLab/BrightEyes-MCS-DataPrep, src/brighteyes_mcs_dataprep/h5_data_calibrator.py at 821248e.
 """HDF5 calibration, output-building, and structure inspection helpers."""
 
 from __future__ import annotations
@@ -15,7 +16,7 @@ import h5py
 import numpy as np
 from tqdm.auto import tqdm
 
-from brighteyes_mcs_reader import reader_legacy
+from brighteyes.mcs.reader import reader_legacy
 
 from .alignment import Alignment
 from .channel_skew_estimator import estimate_channel_skew
