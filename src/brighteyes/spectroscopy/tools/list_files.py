@@ -1,7 +1,7 @@
 # Origin: VicidominiLab/BrightEyes-FFS, src/brighteyes_ffs/tools/list_files.py at f6d640d.
 import os
 
-def list_files(directory='C:/Users/SPAD-fcs/OneDrive - Fondazione Istituto Italiano Tecnologia', filetype='bin', substr=False):
+def list_files(directory='', filetype='bin', substr=False):
     """
     Find all files with file extension 'filetype' in the given directory.
     Subfolders included.
@@ -9,7 +9,7 @@ def list_files(directory='C:/Users/SPAD-fcs/OneDrive - Fondazione Istituto Itali
     Parameters
     ----------
     directory : path, optional
-        Directory path string, e.g. 'C:\\Users\\SPAD-fcs'
+        Directory path; use the working directory when empty.
     filetype : str, optional
         File extension. The default is 'bin'.
     substr : str or Boolean False, optional

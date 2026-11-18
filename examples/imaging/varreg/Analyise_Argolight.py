@@ -3221,7 +3221,7 @@ path_argo = os.path.join(wd, 'Data', 'Argolight', 'data-14-12-2023-18-54-47.h5')
 path_argo_sparsity = os.path.join(wd, 'Data', 'Argolight', 'Argolight_reconstructed_sparsity.tif')
 
 save_path = os.path.join(wd, 'Data', 'Results')
-save_path_server = "/mnt/iitfsvge101/MMS/Data MMS server/Regularization/ISMFLUX/Results/Saved analyzed data/"
+save_path_server = os.path.join(save_path, "analyzed")
 
 
 #%%

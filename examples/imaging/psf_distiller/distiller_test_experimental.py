@@ -28,11 +28,8 @@ plt.close('all')
 
 #%%
 
-path = r'\\iitfsvge101.iit.local\mms\Data MMS server\STED-ISM\AxialDeconvolution\Beads\Gold - 2'
-file = r'data-07-12-2023-12-31-52.h5'
-
-# path = r'\\iitfsvge101.iit.local\mms\Data MMS server\Other\PSF_distiller\2025-04-24_PSF_beads_distiller\100nm_gold'
-# file = r'data-24-04-2025-17-05-28.h5'
+path = 'data'
+file = 'measurement.h5'
 
 fullpath = os.path.join(path, file)
 

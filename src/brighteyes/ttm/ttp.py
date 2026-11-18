@@ -492,7 +492,7 @@ def fitGaus(x, y):
     return results
 
 
-#     filenameToRead='/home/mdonato-fast/Data/data-1596030228884508'
+#     filenameToRead="data/measurement.ttm"
 #     sysclk_MHz = 240.
 #     laser_MHz = 40.
 #     dwell_time_us=1000

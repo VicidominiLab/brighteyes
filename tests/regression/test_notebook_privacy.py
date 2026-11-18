@@ -1,18 +1,21 @@
-"""Check published notebooks for private filesystem locations."""
+"""Check published examples and source for private filesystem locations."""
 
 import json
 import re
 from pathlib import Path
 
 
-def test_notebooks_omit_private_filesystem_locations() -> None:
-    """Keep machine paths and internal server locations out of notebooks."""
+def test_published_files_omit_private_filesystem_locations() -> None:
+    """Keep machine paths and internal server locations out of published files."""
     pattern = re.compile(
         r"(?<!\w)[A-Za-z]:[\\/]|\\\\[\w.-]+\\|/(?:home|Users)/"
         r"|Data MMS server|\.iit\.local",
         re.IGNORECASE,
     )
     root = Path(__file__).resolve().parents[2]
+    for directory in ("src", "examples", "scripts"):
+        for path in sorted((root / directory).rglob("*.py")):
+            assert not pattern.search(path.read_text("utf-8")), path.relative_to(root)
     for path in sorted((root / "examples").rglob("*.ipynb")):
         notebook = json.loads(path.read_text("utf-8"))
         pending = [notebook]

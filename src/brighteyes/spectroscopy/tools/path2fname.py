@@ -8,7 +8,7 @@ def path2fname(path, properWay=False):
     Parameters
     ----------
     path : path
-        Path to a file [string], e.g. 'C:\\Users\\SPAD-fcs\\file.ext'.
+        Path to a file [string], e.g. 'data/file.ext'.
     properWay : TYPE, optional
         DESCRIPTION. The default is False.
 
@@ -17,7 +17,7 @@ def path2fname(path, properWay=False):
     fname : str
         File name, e.g. 'file.ext'.
     folderName : path
-        Folder name, e.g. 'C:\\Users\\SPAD-fcs\\'.
+        Folder name, e.g. 'data/'.
 
     """
     
