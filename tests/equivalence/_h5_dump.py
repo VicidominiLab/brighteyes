@@ -35,6 +35,10 @@ def h5_contents(
             for key, value in node.attrs.items()
             if key not in drop
         }
+        # The package identity changes when the standalone code joins the monorepo.
+        for key in ("software_name", "created_by_package"):
+            if attrs.get(key) == "brighteyes_mcs_dataprep":
+                attrs[key] = "brighteyes"
         data = _clean(node[()], folder) if isinstance(node, h5py.Dataset) else None
         contents["/" + name] = (type(node).__name__, attrs, data)
 

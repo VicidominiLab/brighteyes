@@ -75,7 +75,7 @@ def _package_version():
     if version is None:
         return "unknown"
     try:
-        return version("brighteyes-mcs-dataprep")
+        return version("brighteyes")
     except PackageNotFoundError:
         return "unknown"
 
@@ -467,7 +467,7 @@ def write_h5_output_run(
             "output_type": output_type,
             "tool_name": tool_name,
             "created_utc": _utc_now(),
-            "software_name": "brighteyes_mcs_dataprep",
+            "software_name": "brighteyes",
             "software_version": _package_version(),
             "algorithm_name": algorithm_name,
             "source_file": str(Path(source_path)),
