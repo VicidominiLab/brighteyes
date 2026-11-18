@@ -76,10 +76,16 @@ jobs:
     permissions:
       id-token: write
     steps:
-      - name: Download the distributions
+      - name: Download the source distribution
         uses: actions/download-artifact@v8
         with:
-          pattern: "*"
+          name: sdist
+          path: dist/
+
+      - name: Download the wheels
+        uses: actions/download-artifact@v8
+        with:
+          pattern: "wheels-*"
           merge-multiple: true
           path: dist/
 
