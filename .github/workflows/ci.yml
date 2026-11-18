@@ -85,6 +85,9 @@ jobs:
       - name: Run the moved MCS tests
         run: uv run --no-sync pytest tests/mcs
 
+      - name: Run the spectroscopy compatibility tests
+        run: uv run --no-sync pytest tests/spectroscopy
+
       - name: Run the dataset tests
         run: uv run --no-sync pytest tests/datasets
 
