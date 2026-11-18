@@ -745,7 +745,7 @@ class H5DataCalibrator:
         if version is None:
             return "unknown"
         try:
-            return version("brighteyes-mcs-dataprep")
+            return version("brighteyes")
         except PackageNotFoundError:
             return "unknown"
 
@@ -2045,7 +2045,7 @@ class H5DataCalibrator:
             self._set_group_attrs(
                 provenance_group,
                 {
-                    "created_by_package": "brighteyes_mcs_dataprep",
+                    "created_by_package": "brighteyes",
                     "created_by_version": self._package_version(),
                     "created_at_iso8601": self._utc_now(),
                     "source_data_file": str(self.data_path),
@@ -3124,7 +3124,7 @@ class H5OutputBuilder:
         if version is None:
             return "unknown"
         try:
-            return version("brighteyes-mcs-dataprep")
+            return version("brighteyes")
         except PackageNotFoundError:
             return "unknown"
 
@@ -4003,7 +4003,7 @@ class H5OutputBuilder:
                 "trace_kind": trace_kind,
                 "tool_name": long_name,
                 "created_utc": self._utc_now(),
-                "software_name": "brighteyes_mcs_dataprep",
+                "software_name": "brighteyes",
                 "software_version": self._package_version(),
                 "algorithm_name": "sum_channel_applying_shifts",
                 "algorithm_version": "0.1.0",
@@ -4142,7 +4142,7 @@ class H5OutputBuilder:
                 "output_type": "image_tool",
                 "tool_name": SUM_CHANNELS_TOOL_NAME,
                 "created_utc": self._utc_now(),
-                "software_name": "brighteyes_mcs_dataprep",
+                "software_name": "brighteyes",
                 "software_version": self._package_version(),
                 "algorithm_name": "sum_along_channel_axis",
                 "algorithm_version": "0.1.0",
@@ -4301,7 +4301,7 @@ class H5OutputBuilder:
                 "output_type": "image_tool",
                 "tool_name": SUM_CHANNELS_WITH_SKEW_CORRECTION_TOOL_NAME,
                 "created_utc": self._utc_now(),
-                "software_name": "brighteyes_mcs_dataprep",
+                "software_name": "brighteyes",
                 "software_version": self._package_version(),
                 "algorithm_name": "sum_channel_applying_shifts",
                 "algorithm_version": "0.1.0",
