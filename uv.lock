@@ -326,6 +326,7 @@ spectroscopy = [
     { name = "scipy", version = "1.18.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12'" },
     { name = "seaborn" },
     { name = "statsmodels" },
+    { name = "tables" },
     { name = "tifffile", version = "2026.3.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.12'" },
     { name = "tifffile", version = "2026.10.15", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12'" },
     { name = "torch", version = "2.15.0", source = { registry = "https://download.pytorch.org/whl/cpu" }, marker = "sys_platform == 'darwin'" },
@@ -342,6 +343,7 @@ ttm = [
     { name = "pandas" },
     { name = "scipy", version = "1.17.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.12'" },
     { name = "scipy", version = "1.18.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12'" },
+    { name = "tables" },
     { name = "tqdm" },
 ]
 
@@ -412,6 +414,7 @@ requires-dist = [
     { name = "scipy", marker = "extra == 'ttm'", specifier = ">=1.17.1" },
     { name = "seaborn", marker = "extra == 'spectroscopy'", specifier = ">=0.13.2" },
     { name = "statsmodels", marker = "extra == 'imaging'", specifier = ">=0.15.0" },
+    { name = "tables", marker = "extra == 'ttm'", specifier = ">=3.11.1" },
     { name = "tifffile", marker = "extra == 'spectroscopy'", specifier = ">=2020.9.29" },
     { name = "torch", marker = "extra == 'imaging'", specifier = ">=2.15.0", index = "https://download.pytorch.org/whl/cpu" },
     { name = "torch", marker = "extra == 'mcs'", specifier = ">=2.15.0", index = "https://download.pytorch.org/whl/cpu" },

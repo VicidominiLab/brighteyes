@@ -91,6 +91,24 @@ jobs:
       - name: Run the dataset tests
         run: uv run --no-sync pytest tests/datasets
 
+  ttm:
+    name: TTM without other extras (Python 3.11)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: astral-sh/setup-uv@v10.3.0
+        with:
+          python-version: "3.11"
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - name: Install only TTM and development dependencies
+        run: uv sync --locked --extra ttm --group dev
+
+      - name: Run the TTM conversion tests
+        run: uv run --no-sync pytest tests/ttm
+
   imaging-regression:
     name: Imaging references (Windows, Python 3.11)
     runs-on: windows-latest
