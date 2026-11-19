@@ -1,0 +1,108 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v10.3.0
+
+      - name: Install the linter
+        run: uv sync --locked --only-group dev
+
+      - name: Check the code
+        run: uv run --no-sync ruff check
+
+      - name: Check the formatting
+        run: uv run --no-sync ruff format --check
+
+  imports:
+    name: Imports (Python ${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.14"]
+    env:
+      QT_QPA_PLATFORM: offscreen
+      OMP_NUM_THREADS: "1"
+      MKL_NUM_THREADS: "1"
+      OPENBLAS_NUM_THREADS: "1"
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v10.3.0
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install the package and its extras
+        run: uv sync --locked --extra imaging --group dev
+
+      - name: Run the import tests
+        run: uv run --no-sync pytest tests/imports
+
+      - name: Run the imaging MCS support tests
+        run: uv run --no-sync pytest tests/mcs
+
+      - name: Run the dataset tests
+        run: uv run --no-sync pytest tests/datasets
+
+      - name: Verify the wheel contents
+        run: uv run --no-sync pytest tests/packaging
+
+  imaging-regression:
+    name: Imaging references (Windows, Python 3.11)
+    runs-on: windows-latest
+    timeout-minutes: 20
+    env:
+      QT_QPA_PLATFORM: offscreen
+      MPLBACKEND: Agg
+      OMP_NUM_THREADS: "1"
+      MKL_NUM_THREADS: "1"
+      OPENBLAS_NUM_THREADS: "1"
+      IMAGING_DIAGNOSTICS_DIR: imaging-diagnostics/initial
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v10.3.0
+        with:
+          python-version: "3.11"
+
+      - name: Install the package and imaging dependencies
+        run: uv sync --locked --extra imaging --group dev
+
+      - name: Run the offline imaging reference tests
+        id: regressions
+        run: uv run --no-sync pytest tests/datasets tests/regression
+
+      - name: Repeat the failing numerical stages for diagnosis
+        if: failure() && steps.regressions.outcome == 'failure'
+        env:
+          IMAGING_DIAGNOSTICS_DIR: imaging-diagnostics/repeat
+        run: uv run --no-sync pytest tests/regression/test_deconv3.py tests/regression/test_examples.py -k "deconv3 or psf-distiller-simulation or ism-frc" -q
+
+      - name: Upload numerical comparison diagnostics
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: imaging-numerical-diagnostics
+          path: imaging-diagnostics/
+          retention-days: 14
