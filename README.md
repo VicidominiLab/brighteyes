@@ -1,5 +1,8 @@
 # brighteyes
 
+> [!CAUTION]
+> Currently work in progress, unstable. Do not use yet.
+
 brighteyes is a Python toolbox for image scanning microscopy (ISM) and fluorescence lifetime ISM (FLISM) with array detectors. It includes the MCS file readers and calibration tools used by the imaging workflows.
 
 ```
