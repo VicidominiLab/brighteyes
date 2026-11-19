@@ -14,10 +14,6 @@ from . import (
     mcs_calibrator,
     mcs_dataprep,
     mcs_reader,
-    spectroscopy_fcs,
-    spectroscopy_other,
-    ttm,
-    ttm_kernels,
 )
 
 _MODULES: tuple[ModuleType, ...] = (
@@ -32,10 +28,6 @@ _MODULES: tuple[ModuleType, ...] = (
     mcs_calibrator,
     mcs_dataprep,
     mcs_reader,
-    spectroscopy_fcs,
-    spectroscopy_other,
-    ttm,
-    ttm_kernels,
 )
 
 ALL_CASES: list[Case] = [case for module in _MODULES for case in module.CASES]

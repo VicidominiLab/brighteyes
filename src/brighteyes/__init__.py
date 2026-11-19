@@ -1,4 +1,4 @@
-"""Toolbox for image scanning microscopy and fluorescence fluctuation spectroscopy."""
+"""Toolbox for image scanning microscopy with array detectors."""
 
 import importlib.metadata
 

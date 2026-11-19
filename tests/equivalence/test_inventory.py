@@ -11,16 +11,14 @@ from cases import ALL_CASES, ALL_SKIPPED
 OLD_PACKAGES = (
     "brighteyes_ism",
     "brighteyes_flism",
-    "brighteyes_ffs",
     "brighteyes_mcs_reader",
     "brighteyes_mcs_dataprep",
-    "libttp",
     "s2ism",
     "varreg",
     "psf_ism_distiller",
     "birfi",
 )
-OLD_MODULES = ("flus2ISM_lib", "libttp.ttpCython")
+OLD_MODULES = ("flus2ISM_lib",)
 
 
 def _raise(name: str) -> None:

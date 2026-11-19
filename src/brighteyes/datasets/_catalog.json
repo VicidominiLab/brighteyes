@@ -29,18 +29,6 @@
     "size": 1373299320,
     "checksum": "md5:36dfa21e50d74ce84814cd9480a26bf8"
   },
-  "ffs-alexa-full": {
-    "url": "https://zenodo.org/records/4161418/files/05_Alexa488AB_20ugmL_P60percP_SPAD.7z",
-    "filename": "05_Alexa488AB_20ugmL_P60percP_SPAD.7z",
-    "size": 218958801,
-    "checksum": "md5:6ebb50e581af870637b0f2c5af31c130"
-  },
-  "ffs-alexa-correlations-full": {
-    "url": "https://zenodo.org/records/4161418/files/05_Alexa488AB_20ugmL_P60percP_SPAD_xcorrs.7z",
-    "filename": "05_Alexa488AB_20ugmL_P60percP_SPAD_xcorrs.7z",
-    "size": 3120423,
-    "checksum": "md5:d226c08be3608346bd8e9fd07e3bb88e"
-  },
   "flus2ism-psf-batch-small": {
     "path": "PSFs_comp_batchtest.npy",
     "size": 192328,

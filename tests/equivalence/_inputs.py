@@ -2,7 +2,6 @@ from pathlib import Path
 
 import h5py
 import numpy as np
-import pandas as pd
 import torch
 
 SIZE = 32
@@ -30,22 +29,6 @@ def ism_psf() -> np.ndarray:
     return psf / psf.sum(axis=(0, 1), keepdims=True)
 
 
-def photon_arrival_times() -> np.ndarray:
-    """Return about 10^4 sorted integer arrival times."""
-    return np.sort(np.random.default_rng(0).integers(0, 10**7, size=10_000)).astype(
-        np.int64
-    )
-
-
-def time_trace() -> np.ndarray:
-    """Return a `(time, channels)` array of photon counts."""
-    return (
-        np.random.default_rng(0)
-        .poisson(5.0, size=(10_000, CHANNELS))
-        .astype(np.float64)
-    )
-
-
 def decay_histogram() -> np.ndarray:
     """Return a noisy single-exponential photon arrival histogram."""
     time = np.arange(256)
@@ -54,13 +37,6 @@ def decay_histogram() -> np.ndarray:
         .poisson(1000.0 * np.exp(-time / 40.0))
         .astype(np.float64)
     )
-
-
-def correlation_curve() -> tuple[np.ndarray, np.ndarray]:
-    """Return lag times and a noisy diffusion correlation curve."""
-    tau = np.logspace(-6, 0, 50)
-    noise = np.random.default_rng(0).normal(0, 1e-3, size=tau.shape)
-    return tau, 1.0 / (1.0 + tau / 1e-3) + noise
 
 
 def ism_series() -> np.ndarray:
@@ -101,34 +77,6 @@ def flim_stack() -> np.ndarray:
 def flim_reference_stack() -> np.ndarray:
     """Return a `flim_stack`-shaped array of a reference sample with another lifetime and delays."""
     return _flim_decays(0, tau=5.0, lag=2.0)
-
-
-def photon_streams() -> dict[int, np.ndarray]:
-    """Return a `(photons, 2)` array of macro and micro times in ps for each of 25 channels."""
-    rng = np.random.default_rng(0)
-    return {
-        channel: np.column_stack(
-            (
-                np.sort(rng.integers(0, 200_000, size=400)).astype(np.float64),
-                rng.integers(0, 25_000, size=400).astype(np.float64),
-            )
-        )
-        for channel in range(CHANNELS)
-    }
-
-
-def time_channel_array() -> np.ndarray:
-    """Return a `(time, 1 + channels)` array of sorted unique times and counts of 5 channels."""
-    rng = np.random.default_rng(0)
-    times = np.sort(rng.choice(20_000, size=1500, replace=False)).astype(np.float64)
-    return np.column_stack((times, rng.poisson(0.4, size=(1500, 5)).astype(np.float64)))
-
-
-def pch_psf() -> np.ndarray:
-    """Return a cubic Gaussian focal volume of 12 voxels per side with its maximum at 1."""
-    axis = np.arange(12) - 6
-    z, y, x = np.meshgrid(axis, axis, axis, indexing="ij")
-    return np.exp(-2 * (x**2 + y**2) / 3.0**2 - 2 * z**2 / 5.0**2)
 
 
 def bead_image() -> np.ndarray:
@@ -191,54 +139,6 @@ def mcs_h5_file(path: Path) -> Path:
         raw.create_group("legacy")
         handle.create_group("calibration")
     return path
-
-
-def ttm_new_protocol_bytes() -> bytes:
-    """Return a uint16 stream of 200 events with channel, dummy, laser, pixel, scan and line words and `0x7FFF` fillers."""
-    rng = np.random.default_rng(0)
-    words = []
-    for event in range(200):
-        for channel in rng.choice([0, 3, 7, 24, 50], size=rng.integers(0, 4)):
-            valid = int(rng.random() < 0.7)
-            words.append(valid << 15 | int(channel) << 8 | int(rng.integers(0, 256)))
-        for word_id, enable_probability in (
-            (123, 0.3),
-            (124, 0.0),
-            (125, 0.2),
-            (126, 0.05 if event else 1.0),
-            (127, 0.1),
-        ):
-            valid = int(rng.random() < 0.5)
-            enable = int(rng.random() < enable_probability) << 7
-            words.append(
-                valid << 15 | word_id << 8 | enable | int(rng.integers(0, 127))
-            )
-        words += [0x7FFF] * int(rng.integers(0, 3))
-    return np.array(words, dtype=np.uint16).tobytes()
-
-
-def ttm_raw_frame() -> pd.DataFrame:
-    """Return 3000 parsed time-tagger rows with photons on channels 0 and 3, laser flags, and scan, line and pixel edges."""
-    rng = np.random.default_rng(0)
-    rows = 3000
-    cumulative_step = np.cumsum(rng.integers(1, 200, size=rows)).astype(np.int64)
-    row = np.arange(rows)
-    frame = pd.DataFrame(
-        {
-            "t_L": rng.integers(0, 256, size=rows),
-            "t_0": rng.integers(0, 256, size=rows),
-            "t_3": rng.integers(0, 256, size=rows),
-            "valid_tdc_0": rng.random(rows) < 0.3,
-            "valid_tdc_3": rng.random(rows) < 0.3,
-            "valid_tdc_L": rng.random(rows) < 0.4,
-            "scan_enable": row % 1000 < 10,
-            "line_enable": (row % 100 >= 20) & (row % 100 < 25),
-            "pixel_enable": row % 10 == 3,
-        }
-    ).astype(np.uint8)
-    frame["step"] = (cumulative_step % 2**16).astype(np.uint16)
-    frame["cumulativeStep"] = cumulative_step
-    return frame
 
 
 def flus2ism_inputs() -> tuple[np.ndarray, np.ndarray]:
@@ -407,117 +307,6 @@ def periodic_decay(
     shape = np.exp(-np.mod(time - delay_ns, period_ns) / tau_ns)
     rate = counts * shape / shape.sum()
     return time, np.random.default_rng(seed).poisson(rate).astype(np.float64)
-
-
-def _ttm_channel_columns(rows: int) -> tuple[np.ndarray, np.ndarray]:
-    """Return random times and valid flags `(rows, 21)` of the 21 channels beyond `ttm_raw_frame`."""
-    rng = np.random.default_rng(1)
-    return (
-        rng.integers(0, 256, size=(rows, 21)).astype(np.uint8),
-        (rng.random((rows, 21)) < 0.3).astype(np.uint8),
-    )
-
-
-def ttm_raw_bytes(no_data_rows: tuple[int, ...] = ()) -> bytes:
-    """Return the packed RAW stream of the rows of `ttm_raw_frame`: 32 bytes a row, 21 channels, and the rows in `no_data_rows` flagged as no data."""
-    frame = ttm_raw_frame()
-    rows = len(frame)
-    times, valid = _ttm_channel_columns(rows)
-    names = [("step", "<u2"), ("t_L", "u1"), ("WORD_HEAD", "u1")]
-    for word in range(7):
-        names += [(f"t_{3 * word + k}", "u1") for k in (2, 1, 0)]
-        names.append((f"WORD_{word}", "u1"))
-    stream = np.zeros(rows, dtype=names)
-    head = (
-        frame["scan_enable"].to_numpy()
-        | frame["line_enable"].to_numpy() << 1
-        | frame["pixel_enable"].to_numpy() << 2
-        | frame["valid_tdc_L"].to_numpy() << 3
-    )
-    head[list(no_data_rows)] |= 15 << 4
-    stream["step"] = frame["step"]
-    stream["t_L"] = frame["t_L"]
-    stream["WORD_HEAD"] = head
-    for word in range(7):
-        for k in range(3):
-            stream[f"t_{3 * word + k}"] = times[:, 3 * word + k]
-        stream[f"WORD_{word}"] = (
-            valid[:, 3 * word] << 1
-            | valid[:, 3 * word + 1] << 2
-            | valid[:, 3 * word + 2] << 3
-        )
-    return stream.tobytes()
-
-
-def ttm_parsed_bytes() -> bytes:
-    """Return the "parsed" stream of the rows of `ttm_raw_frame`: 96 bytes a row, a 12-byte header and seven 12-byte payloads."""
-    frame = ttm_raw_frame()
-    rows = len(frame)
-    times, valid = _ttm_channel_columns(rows)
-    names = [
-        ("event", "<u4"),
-        ("step", "<u2"),
-        ("t_L", "u1"),
-        ("scan_enable", "u1"),
-        ("line_enable", "u1"),
-        ("pixel_enable", "u1"),
-        ("valid_tdc_L", "u1"),
-        ("id_0", "u1"),
-    ]
-    for word in range(7):
-        names.append((f"event_{3 * word}", "<u4"))
-        names += [(f"t_{3 * word + k}", "u1") for k in (2, 1, 0)]
-        names.append((f"useless_{word}", "u1"))
-        names += [(f"valid_tdc_{3 * word + k}", "u1") for k in (2, 1, 0)]
-        names.append((f"id_{word + 1}", "u1"))
-    stream = np.zeros(rows, dtype=names)
-    stream["event"] = np.arange(rows)
-    for name in (
-        "step",
-        "t_L",
-        "scan_enable",
-        "line_enable",
-        "pixel_enable",
-        "valid_tdc_L",
-    ):
-        stream[name] = frame[name]
-    for channel in range(21):
-        stream[f"t_{channel}"] = times[:, channel]
-        stream[f"valid_tdc_{channel}"] = valid[:, channel]
-    return stream.tobytes()
-
-
-def ttm_calibration_h5_file(path: Path) -> Path:
-    """Write a pandas HDF5 file with `main`, `ch_0`, `ch_3` (no `ch_1`) and `metadata` tables, as the converters lay them out, and return `path`."""
-    rng = np.random.default_rng(0)
-    rows = 2000
-    main = pd.DataFrame(
-        {
-            "cumulative_step": np.cumsum(rng.integers(1, 200, size=rows)),
-            "t_L": rng.integers(0, 150, size=rows).astype(np.uint8),
-            "total_photon": rng.integers(0, 3, size=rows).astype(np.uint8),
-        }
-    )
-    main.to_hdf(path, mode="w", key="main", format="table")
-    for channel, spread in ((0, 120), (3, 90)):
-        index = np.sort(rng.choice(rows, size=600, replace=False))
-        pd.DataFrame(
-            {
-                f"t_{channel}": rng.integers(0, spread, size=600).astype(np.int16),
-                f"dS_{channel}": rng.integers(0, 4, size=600).astype(np.uint16),
-            },
-            index=pd.Index(index, name=f"index_{channel}"),
-        ).to_hdf(path, key=f"ch_{channel}", format="table")
-    pd.DataFrame(
-        {
-            "sysclk_MHz": np.asarray(240.0),
-            "laser_MHz": np.asarray(40.0),
-            "sysclk_ps": np.asarray(1e6 / 240.0),
-            "laser_ps": np.asarray(1e6 / 40.0),
-        },
-        index=[0],
-    ).to_hdf(path, key="metadata")
-    return path
 
 
 def shifted_spot_dataset() -> np.ndarray:

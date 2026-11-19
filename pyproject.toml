@@ -1,11 +1,11 @@
 [build-system]
-requires = ["maturin>=1.9,<2"]
-build-backend = "maturin"
+requires = ["uv_build>=0.13.6,<0.14.0"]
+build-backend = "uv_build"
 
 [project]
 name = "brighteyes"
 version = "0.1.0"
-description = "Toolbox for image scanning microscopy and fluorescence fluctuation spectroscopy with array detectors"
+description = "Toolbox for image scanning microscopy with array detectors"
 readme = "README.md"
 requires-python = ">=3.11"
 license = "GPL-3.0-or-later"
@@ -41,29 +41,6 @@ imaging = [
     "tqdm>=4.70.1",
     "zernikepy>=0.0.5",
 ]
-spectroscopy = [
-    "brighteyes[imaging,ttm]",
-    "czifile>=2019.7.2.3",
-    "h5py>=3.16.0",
-    "imutils>=0.5.4",
-    "joblib>=1.6.0",
-    "matplotlib>=3.3.2",
-    "multipletau>=0.3.3",
-    "numpy>=1.19.4",
-    "ome-types>=0.5.3",
-    "opencv-python-headless>=5.0.0.93",
-    "openpyxl>=3.1.5",
-    "pandas>=1.1.4",
-    "phconvert>=0.10.2",
-    "ptufile>=2026.2.6",
-    "pydantic<2.0",
-    "pyqt5>=5.15.11",
-    "qdarkstyle>=3.2.3",
-    "rfc3987>=1.3.8",
-    "scipy>=1.17.1",
-    "seaborn>=0.13.2",
-    "tifffile>=2020.9.29",
-]
 mcs = [
     "h5py>=3.16.0",
     "joblib>=1.6.0",
@@ -72,14 +49,6 @@ mcs = [
     "pandas>=3.1.0",
     "scipy>=1.17.1",
     "torch>=2.15.0",
-    "tqdm>=4.70.1",
-]
-ttm = [
-    "matplotlib>=3.11.2",
-    "numpy>=2.4.6",
-    "pandas>=3.1.0",
-    "scipy>=1.17.1",
-    "tables>=3.11.1",
     "tqdm>=4.70.1",
 ]
 
@@ -93,7 +62,6 @@ torch = { index = "pytorch-cpu" }
 torchvision = { index = "pytorch-cpu" }
 brighteyes-ism = { git = "https://github.com/VicidominiLab/BrightEyes-ISM", rev = "d799720" }
 brighteyes-flism = { git = "https://github.com/VicidominiLab/BrightEyes-FLISM", rev = "85f0d96" }
-brighteyes-ffs = { git = "https://github.com/VicidominiLab/BrightEyes-FFS", rev = "f6d640d" }
 brighteyes = { workspace = true }
 brighteyes-mcs-reader = { git = "https://github.com/VicidominiLab/BrightEyes-MCS-Reader", rev = "8b81d62" }
 brighteyes-mcs-dataprep = { git = "https://github.com/VicidominiLab/BrightEyes-MCS-DataPrep", rev = "821248e" }
@@ -101,7 +69,6 @@ s2ism = { git = "https://github.com/VicidominiLab/s2ISM", rev = "10bb5fc" }
 varreg = { git = "https://github.com/VicidominiLab/Regularization-by-Noise", rev = "bb6d0c6" }
 psf-ism-distiller = { git = "https://github.com/VicidominiLab/psf-distiller", rev = "4d927b1" }
 birfi = { git = "https://github.com/VicidominiLab/birfi", rev = "4ea6c4d" }
-libttp = { git = "https://github.com/VicidominiLab/libttp", rev = "7fe694a" }
 
 [dependency-groups]
 dev = [
@@ -114,12 +81,10 @@ examples = [
 ]
 reference = [
     "birfi",
-    "brighteyes-ffs",
     "brighteyes-flism",
     "brighteyes-ism",
     "brighteyes-mcs-dataprep",
     "brighteyes-mcs-reader",
-    "libttp",
     "psf-ism-distiller",
     "s2ism",
     "varreg",
@@ -128,26 +93,12 @@ reference = [
 [tool.uv]
 required-environments = ["sys_platform == 'win32' and platform_machine == 'AMD64'"]
 override-dependencies = ["tdqm; python_version < '0'"]
-cache-keys = [
-    { file = "pyproject.toml" },
-    { file = "rust/ttp/Cargo.toml" },
-    { file = "rust/ttp/Cargo.lock" },
-    { file = "rust/ttp/src/**/*.rs" },
-]
-
-[tool.maturin]
-python-source = "src"
-module-name = "brighteyes.ttm._ttp_core"
-manifest-path = "rust/ttp/Cargo.toml"
 
 [tool.ruff]
 line-length = 88
 extend-exclude = [
     "src/brighteyes/imaging",
-    "src/brighteyes/spectroscopy",
     "src/brighteyes/mcs",
-    "src/brighteyes/ttm/ttp.py",
-    "src/brighteyes/ttm/__init__.py",
     "tests/mcs",
     "tests/equivalence/reference",
     "examples",

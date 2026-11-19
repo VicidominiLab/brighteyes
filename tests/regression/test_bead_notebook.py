@@ -14,6 +14,30 @@ from brighteyes import datasets
 from brighteyes.imaging.psf_distiller import distiller
 
 
+def test_bead_notebook_reads_coordinates_without_spectroscopy(
+    tmp_path, monkeypatch
+) -> None:
+    """Load tab-separated bead coordinates through the notebook's actual imports."""
+    notebook = json.loads(
+        Path("examples/imaging/psf_distiller/distiller_test_beads.ipynb").read_text(
+            "utf-8"
+        )
+    )
+    coordinates = np.array([[20.5, 31.25], [41.0, 52.5]])
+    path = tmp_path / "clicked_points.csv"
+    path.write_text("20.5\t31.25\n41.0\t52.5\n")
+    monkeypatch.chdir(tmp_path)
+    context = {}
+    exec("".join(notebook["cells"][3]["source"]), context)  # noqa: S102
+    read = next(
+        line.strip()
+        for line in notebook["cells"][9]["source"]
+        if "clicked_points = np.loadtxt(" in line
+    )
+    exec(read, context)  # noqa: S102
+    np.testing.assert_array_equal(context["clicked_points"], coordinates)
+
+
 @pytest.mark.parametrize(
     "filename, field",
     (
@@ -52,7 +76,24 @@ def test_bead_notebook_matches_frozen_preprocessing() -> None:
     reference = root / "tests/data/imaging/psf-distillation/beads"
     manifest = json.loads((reference / "manifest.json").read_text("utf-8"))
     notebook_path = root / manifest["notebook"]
-    assert capture["text_sha256"](notebook_path) == manifest["notebook_sha256"]
+    # Undo only the CSV substitutions when checking the captured source hash.
+    source = (
+        notebook_path.read_text("utf-8")
+        .replace(
+            '    "from brighteyes.imaging.s2ism.psf_estimator import GridFinder\\n",\n',
+            '    "from brighteyes.imaging.s2ism.psf_estimator import GridFinder\\n",\n'
+            '    "from brighteyes.spectroscopy.tools.csv2array import array2csv, csv2array\\n",\n',
+        )
+        .replace(
+            "#np.savetxt('clicked_points.csv', clicked_points, delimiter='\\\\t')",
+            "#array2csv(clicked_points, 'clicked_points.csv')",
+        )
+        .replace(
+            "clicked_points = np.loadtxt('clicked_points.csv', delimiter='\\\\t')",
+            "clicked_points = csv2array('clicked_points.csv')",
+        )
+    )
+    assert hashlib.sha256(source.encode()).hexdigest() == manifest["notebook_sha256"]
     notebook = json.loads(notebook_path.read_text("utf-8"))
     with np.load(datasets.fetch("beads-measured-small"), allow_pickle=False) as data:
         inputs = {key: data[key] for key in data.files}

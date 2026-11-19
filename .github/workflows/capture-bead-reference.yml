@@ -27,8 +27,6 @@ jobs:
         with:
           python-version: "3.11"
 
-      - uses: dtolnay/rust-toolchain@stable
-
       - name: Install the package and imaging dependencies
         run: uv sync --locked --extra imaging --group dev
 
