@@ -18,7 +18,7 @@ import numpy as np
 from brighteyes import datasets
 
 root = Path(__file__).resolve().parent.parent
-source_revision = "bd9bb9b400e887760ab5028468d2da6edd0de54b"
+source_revision = "37e093645c5826df7bf96ad08bebe1cf34c29674"
 
 
 def crop_spatial(
