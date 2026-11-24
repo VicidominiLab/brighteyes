@@ -89,6 +89,9 @@ jobs:
       - name: Install the package and imaging dependencies
         run: uv sync --locked --extra imaging --group dev
 
+      - name: Check imaging types
+        run: uv run --no-sync mypy src/brighteyes/imaging
+
       - name: Run the offline imaging reference tests
         id: regressions
         run: uv run --no-sync pytest tests/datasets tests/regression

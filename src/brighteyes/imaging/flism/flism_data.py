@@ -80,7 +80,8 @@ class FlimData:
         self.step_size: int | None = step_size
 
         if data_path is not None:
-            self.load_data_irf(data_path_irf)
+            if data_path_irf is not None:
+                self.load_data_irf(data_path_irf)
             self.load_data(data_path)
             if pre_filter is not None:
                 if isinstance(pre_filter, str):
@@ -175,7 +176,7 @@ class FlimData:
             self.data, self.data_hist.shape[0]
         )
 
-    def load_data_irf(self, data_path_irf: str | None) -> None:
+    def load_data_irf(self, data_path_irf: str) -> None:
         """Load reference histograms and metadata."""
         self.data_irf = h5py.File(data_path_irf)
         self.metadata_irf = reader_legacy.metadata_load(data_path_irf)
