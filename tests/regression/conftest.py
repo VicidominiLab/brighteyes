@@ -8,11 +8,14 @@ from collections.abc import Callable, Generator
 from functools import partial
 from pathlib import Path
 
+import matplotlib
 import numpy as np
 import pytest
 import torch
 from _diagnostics import assert_reference, record_environment
 from threadpoolctl import threadpool_limits
+
+matplotlib.use("Agg")
 
 
 @pytest.fixture(autouse=True)
