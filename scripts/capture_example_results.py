@@ -100,11 +100,8 @@ def capture(example: str, cache: Path, output: Path) -> None:
 
     with tempfile.TemporaryDirectory(dir=cache) as temporary:
         work = Path(temporary)
-        sources = sorted(
-            path.relative_to(root).as_posix() for path in (root / "src").rglob("*.py")
-        )
         archived = subprocess.run(
-            ["git", "archive", "--format=zip", source_revision, *sources],
+            ["git", "archive", "--format=zip", source_revision, "src"],
             cwd=root,
             capture_output=True,
             check=True,
