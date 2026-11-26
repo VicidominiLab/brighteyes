@@ -137,6 +137,7 @@ _module_moves = {
         "max_likelihood_reconstruction",
     ),
     ("s2ism.s2ism", "brighteyes.imaging.convolution"): ("partial_convolution_rfft",),
+    ("brighteyes_flism._fit_maps", "brighteyes.imaging.flism"): ("generate_fit_maps",),
     ("s2ism.dataio", "brighteyes.imaging.extraction.deconv.s2ism"): (
         "is_mcs_file",
         "list_mcs_datasets",

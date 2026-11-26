@@ -21,7 +21,6 @@ from brighteyes.mcs.reader import (
     load_virtual_channel,
 )
 
-from ._fit_maps import generate_fit_maps
 from .flism_data import FlimData
 from .graph_tools import (
     load_calibration_fit_traces,
@@ -69,7 +68,7 @@ centroid = Alignment.centroid
 clean_irf = Alignment.clean_irf
 clean_irf_stack = Alignment.clean_irf_stack
 fit_maps_to_stack = Alignment.fit_maps_to_stack
-Alignment.generate_fit_maps = staticmethod(generate_fit_maps)
+generate_fit_maps = Alignment.generate_fit_maps
 
 __all__ = [
     "Alignment",

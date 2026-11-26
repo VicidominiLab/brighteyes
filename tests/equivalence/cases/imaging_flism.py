@@ -718,6 +718,6 @@ SKIPPED: dict[str, str] = {
     f"{GRAPH}:load_calibration_summary": SKIP_FILE_IO,
     f"{GRAPH}:load_calibration_fit_traces": SKIP_FILE_IO,
     f"{FIT}:generate_fit_maps": (
-        "fails with the old code too: TypeError: Alignment._fit_map_one_pixel() missing 9 required positional arguments"
+        "fails with the old code: TypeError: Alignment._fit_map_one_pixel() missing 9 required positional arguments"
     ),
 }
