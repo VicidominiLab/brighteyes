@@ -2,20 +2,37 @@
   "ism-cell-full": {
     "url": "https://zenodo.org/records/7343112/files/Cell_ISM_dataset.h5",
     "filename": "Cell_ISM_dataset.h5",
-    "size": 3187611072,
     "checksum": "md5:24dd933c66316495bf48cb2cef3e237c"
   },
   "ism-psf-full": {
     "url": "https://zenodo.org/records/7343112/files/PSF_ISM_dataset.h5",
     "filename": "PSF_ISM_dataset.h5",
-    "size": 1682995376,
     "checksum": "md5:acbc7e3210811c28b8896f7799105e50"
   },
   "s2ism-full": {
     "url": "https://zenodo.org/records/11284051/files/h5_files_s2ism.zip",
     "filename": "h5_files_s2ism.zip",
-    "size": 3922127512,
     "checksum": "md5:6c09c31be8ff54833c6d6201dff21e01"
+  },
+  "s2ism-hela-tubulin-a": {
+    "archive": "s2ism-full",
+    "member": "HeLa_cell_A_tubulin_data-16-12-2022-18-20-18.h5",
+    "size": 2429742976
+  },
+  "s2ism-lamina-tubulin-flim": {
+    "archive": "s2ism-full",
+    "member": "Lamina_tubulin_flim_data-10-04-2024-19-27-47.h5",
+    "size": 7799439744
+  },
+  "s2ism-lamina-tubulin-flim-irf": {
+    "archive": "s2ism-full",
+    "member": "IRF_for_lamina_tubulin_flim_data-10-04-2024-19-50-34.h5",
+    "size": 1317139352
+  },
+  "s2ism-mitochondria-timelapse": {
+    "archive": "s2ism-full",
+    "member": "Mithocondria_timelapse_data-09-11-2023-12-47-10.h5",
+    "size": 1312815448
   },
   "birfi-small": {
     "path": "birfi-small.npz",

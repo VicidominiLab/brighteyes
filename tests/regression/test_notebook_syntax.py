@@ -1,14 +1,32 @@
-"""Check Python syntax in the experimental reconstruction example."""
+"""Check Python syntax in the notebooks that download published data."""
 
 import json
 from pathlib import Path
 
+import pytest
 
-def test_experimental_s2ism_notebook_cells_compile() -> None:
-    """Compile the reconstruction flow without downloading or processing data."""
-    root = Path(__file__).resolve().parents[2]
-    filename = root / "examples/imaging/s2ism/Reconstruction_step_by_step_exp.ipynb"
-    notebook = json.loads(filename.read_text("utf-8"))
-    for index, cell in enumerate(notebook["cells"]):
+NOTEBOOKS = (
+    "examples/imaging/BrightEyes_ISM_analysis_demo.ipynb",
+    "examples/imaging/s2ism/Reconstruction_step_by_step_exp.ipynb",
+    "examples/imaging/s2ism/Reconstruction_lifetime.ipynb",
+    "examples/imaging/s2ism/Reconstruction_time_lapse.ipynb",
+)
+
+
+@pytest.mark.parametrize("notebook", NOTEBOOKS)
+def test_download_notebook_cells_compile(notebook: str) -> None:
+    """Compile every code cell of each download notebook without running it."""
+    filename = Path(__file__).resolve().parents[2] / notebook
+    cells = json.loads(filename.read_text("utf-8"))["cells"]
+    for index, cell in enumerate(cells):
         if cell["cell_type"] == "code":
-            compile("".join(cell["source"]), f"s2ism-cell-{index}", "exec")
+            compile("".join(cell["source"]), f"{notebook}-cell-{index}", "exec")
+
+
+@pytest.mark.parametrize("notebook", NOTEBOOKS)
+def test_download_notebook_cells_have_ids(notebook: str) -> None:
+    """Give every cell an id where the notebook format requires one."""
+    filename = Path(__file__).resolve().parents[2] / notebook
+    content = json.loads(filename.read_text("utf-8"))
+    if (content["nbformat"], content["nbformat_minor"]) >= (4, 5):
+        assert all("id" in cell for cell in content["cells"])
