@@ -20,7 +20,7 @@ def test_private_measurement_metadata_omits_acquisition_names() -> None:
 def test_published_files_omit_private_filesystem_locations() -> None:
     """Keep machine paths and internal server locations out of published files."""
     pattern = re.compile(
-        r"(?<!\w)[A-Za-z]:[\\/]|\\\\[\w.-]+\\|/(?:home|Users)/"
+        r"(?<!\w)[A-Za-z]:[\\/]|\\\\[\w.-]+\\|/(?:home|Users|mnt|media|Volumes)/"
         r"|Data [A-Za-z]+ server|\.[A-Za-z0-9-]+\.local",
         re.IGNORECASE,
     )
