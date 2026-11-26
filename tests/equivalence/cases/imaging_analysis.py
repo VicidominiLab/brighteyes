@@ -1,8 +1,5 @@
 """Equivalence cases for `brighteyes_ism.analysis`."""
 
-import contextlib
-import io
-
 import numpy as np
 from _inputs import CHANNELS, SIZE, ism_dataset, ism_psf, ism_series
 from _registry import SKIP_GUI, SKIP_PLOT_ONLY, Case
@@ -31,10 +28,6 @@ def _meshgrid() -> tuple[np.ndarray, np.ndarray]:
     return np.meshgrid(axis, axis)
 
 
-def _gaussian_image() -> np.ndarray:
-    return ism_psf()[:, :, REF]
-
-
 def _focus_calibration() -> np.ndarray:
     return _summed_series()[8:24, 8:24]
 
@@ -47,20 +40,9 @@ def _color_map(call):
     return image, color_map.colorbar(16), color_map
 
 
-def _cloud_input() -> np.ndarray:
-    return ism_dataset()[:4, :5, :3]
-
-
 def _kl_inputs() -> tuple[np.ndarray, np.ndarray]:
     dset = ism_dataset()
     return dset[:, :, 0] + 1, np.moveaxis(dset[:, :, 1:4], -1, 0) + 1
-
-
-def _check_saturation(call):
-    output = io.StringIO()
-    with contextlib.redirect_stdout(output):
-        result = call(np.minimum(ism_dataset(), 15), np.full(CHANNELS, 15))
-    return result, output.getvalue()
 
 
 def _gauss_mult_var(call):
@@ -220,17 +202,6 @@ CASES: list[Case] = [
     ),
     Case(f"{GRAPH}:ColorMap2D", _color_map),
     Case(f"{TOOLS}:sigmoid", lambda f: f(np.linspace(0, 1, 50), 0.3, 0.05)),
-    Case(f"{TOOLS}:low_pass", lambda f: f(ism_dataset(), 0.2, 0.05), "real"),
-    Case(
-        f"{TOOLS}:low_pass",
-        lambda f: f(
-            np.fft.fftshift(np.fft.fftn(ism_dataset(), axes=(0, 1)), axes=(0, 1)),
-            0.2,
-            0.05,
-            data="fourier",
-        ),
-        "fourier",
-    ),
     Case(f"{TOOLS}:Reorder", lambda f: f(ism_dataset(), "xyc"), "add dimensions"),
     Case(
         f"{TOOLS}:Reorder", lambda f: f(ism_dataset(), "cyx", "xyc"), "same dimensions"
@@ -251,21 +222,12 @@ CASES: list[Case] = [
         lambda f: f(ism_dataset(), us=3, npx="odd", order="xyc"),
         "odd",
     ),
-    Case(f"{TOOLS}:ArgMaxND", lambda f: f(ism_dataset())),
-    Case(
-        f"{TOOLS}:FWHM",
-        lambda f: f(
-            np.linspace(-5, 5, 101), np.exp(-(np.linspace(-5, 5, 101) ** 2) / 2), 0.4
-        ),
-    ),
-    Case(f"{TOOLS}:RadialSpectrum", lambda f: f(ism_dataset()[:, :, 0], pxsize=0.05)),
     Case(f"{TOOLS}:fingerprint", lambda f: f(ism_dataset()), "summed"),
     Case(
         f"{TOOLS}:fingerprint",
         lambda f: f(np.moveaxis(ism_series(), 2, 0), volumetric=True),
         "volumetric",
     ),
-    Case(f"{TOOLS}:point_cloud_from_img", lambda f: f(_cloud_input())),
     Case(f"{TOOLS}:kl_divergence", lambda f: f(*_kl_inputs()), "relative entropy"),
     Case(
         f"{TOOLS}:kl_divergence",
@@ -277,27 +239,7 @@ CASES: list[Case] = [
         lambda f: f(*_kl_inputs(), normalize_entries=True),
         "normalized",
     ),
-    Case(
-        f"{TOOLS}:normalized_absolute_difference",
-        lambda f: f(ism_dataset()[:, :, 0] + 1, ism_dataset()[:, :, 1] + 1),
-    ),
-    Case(f"{TOOLS}:check_saturation", _check_saturation),
     Case(f"{TOOLS}:GaussMultVar", _gauss_mult_var),
-    Case(
-        f"{TOOLS}:fit_to_gaussian",
-        lambda f: f(_gaussian_image(), 1.0, p0=(0, 0, 4, 0, 4, 0.04)),
-        "no baseline",
-    ),
-    Case(
-        f"{TOOLS}:fit_to_gaussian",
-        lambda f: f(
-            _gaussian_image() + 0.001,
-            1.0,
-            baseline=True,
-            p0=(0, 0, 4, 0, 4, 0.04, 0.001),
-        ),
-        "baseline",
-    ),
 ]
 
 SKIPPED: dict[str, str] = {

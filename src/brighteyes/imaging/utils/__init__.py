@@ -1,21 +1,13 @@
 """Array utilities and Fourier ring correlation."""
 
 from ._arrays import (
-    FWHM,
-    ArgMaxND,
     CropEdge,
     DownSample,
     GaussMultVar,
-    RadialSpectrum,
     Reorder,
     UpSample,
-    check_saturation,
     fingerprint,
-    fit_to_gaussian,
     kl_divergence,
-    low_pass,
-    normalized_absolute_difference,
-    point_cloud_from_img,
     sigmoid,
 )
 from ._frc import (
@@ -32,26 +24,18 @@ from ._frc import (
 
 __all__ = [
     "FRC",
-    "FWHM",
-    "ArgMaxND",
     "CropEdge",
     "DownSample",
     "FRC_resolution",
     "GaussMultVar",
-    "RadialSpectrum",
     "Reorder",
     "UpSample",
-    "check_saturation",
     "fingerprint",
-    "fit_to_gaussian",
     "fixed_threshold",
     "hann2d",
     "kl_divergence",
-    "low_pass",
-    "normalized_absolute_difference",
     "nsigma_threshold",
     "plotFRC",
-    "point_cloud_from_img",
     "radial_profile",
     "sigmoid",
     "smooth",
