@@ -15,11 +15,11 @@ from torch import einsum, real
 from torch.fft import ifftshift, irfftn, rfftn
 from tqdm import tqdm
 
-from ..psf.finder import psf_estimator as svr
+from ....psf.finder import psf_estimator as svr
 
 if TYPE_CHECKING:
-    from .. import _types
-    from ..psf import sim
+    from .... import _types
+    from ....psf import sim
 
     Array = _types.Array
 

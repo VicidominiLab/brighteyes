@@ -102,6 +102,51 @@ _module_moves = {
         "realign_psf",
         "residuals",
     ),
+    ("brighteyes_ism.analysis.APR_lib", "brighteyes.imaging.extraction.apr"): (
+        "APR",
+        "Reassignment",
+        "ShiftVectors",
+        "hann2d",
+    ),
+    (
+        "brighteyes_ism.analysis.FocusISM_lib",
+        "brighteyes.imaging.extraction.focus_ism",
+    ): (
+        "FitFingerprint",
+        "Selector",
+        "fingerprint_model",
+        "focusISM",
+        "gaussian",
+        "gaussian_model",
+        "pixel_fit_1",
+        "pixel_fit_2",
+    ),
+    (
+        "brighteyes_ism.simulation.Tubulin_sim",
+        "brighteyes.imaging.simulator",
+    ): ("functionPhTub", "getElipsoid", "thetaVariation", "tubSettings"),
+    (
+        "brighteyes_ism.simulation.simulator",
+        "brighteyes.imaging.simulator",
+    ): ("ImageSimulator",),
+    (
+        "brighteyes_ism.simulation.utils",
+        "brighteyes.imaging.convolution",
+    ): ("partial_convolution",),
+    ("s2ism.s2ism", "brighteyes.imaging.extraction.deconv.s2ism"): (
+        "amd_stop",
+        "amd_update_fft",
+        "batch_reconstruction",
+        "data_driven_reconstruction",
+        "max_likelihood_reconstruction",
+        "partial_convolution_rfft",
+    ),
+    ("s2ism.dataio", "brighteyes.imaging.extraction.deconv.s2ism"): (
+        "is_mcs_file",
+        "list_mcs_datasets",
+        "load_mcs",
+        "read_mcs_signal",
+    ),
 }
 
 paths = {

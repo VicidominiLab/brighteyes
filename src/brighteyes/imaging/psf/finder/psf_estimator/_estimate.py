@@ -13,7 +13,7 @@ from scipy.stats import pearsonr as pearson
 
 import brighteyes.imaging.utils as tool
 from brighteyes.imaging._types import Array
-from brighteyes.imaging.analysis.APR_lib import ShiftVectors
+from brighteyes.imaging.extraction.apr import ShiftVectors
 from brighteyes.imaging.psf import sim
 
 from .. import mag_finder as mag

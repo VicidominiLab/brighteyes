@@ -14,7 +14,7 @@ from matplotlib.figure import Figure
 from scipy.optimize import curve_fit
 from statsmodels.nonparametric.smoothers_lowess import lowess
 
-from ..analysis._windows import hann_window_2d
+from .._windows import hann_window_2d
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Sequence

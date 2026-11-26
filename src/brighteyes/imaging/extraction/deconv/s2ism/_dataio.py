@@ -75,11 +75,3 @@ def read_mcs_signal(
             channel=channel,
         ),
     )
-
-
-__all__ = [
-    "is_mcs_file",
-    "list_mcs_datasets",
-    "load_mcs",
-    "read_mcs_signal",
-]

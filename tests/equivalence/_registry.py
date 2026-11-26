@@ -17,7 +17,7 @@ SKIP_GUI: Final[str] = "needs a running Qt application"
 PREFIXES: Final[tuple[tuple[str, str], ...]] = (
     ("brighteyes_mcs_reader", "brighteyes.mcs.reader"),
     ("brighteyes_mcs_dataprep", "brighteyes.mcs.dataprep"),
-    ("s2ism", "brighteyes.imaging.s2ism"),
+    ("s2ism", "brighteyes.imaging.extraction.deconv.s2ism"),
     ("birfi", "brighteyes.imaging.birfi"),
     ("brighteyes_ism.dataio", "brighteyes.imaging.io"),
     ("brighteyes_ism", "brighteyes.imaging"),
