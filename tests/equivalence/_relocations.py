@@ -4,21 +4,7 @@ _module_moves = {
     (
         "brighteyes_ism.analysis.Deconv_lib",
         "brighteyes.imaging.extraction.deconv.ism",
-    ): (
-        "FRC_MultiImg_RL_FFT",
-        "FRC_MultiImg_RL_FFT_2",
-        "MultiImg_RL_FFT",
-        "MultiImg_RL_FFT_2",
-        "PSF_FRC",
-        "PadDataset",
-        "UnpadDataset",
-        "convolution_matrix",
-        "deconv_RL_FFT",
-        "deconv_Wiener",
-        "deconv_Wiener_FFT",
-        "disk2d",
-        "gauss2d",
-    ),
+    ): ("MultiImg_RL_FFT", "PadDataset", "UnpadDataset"),
     ("brighteyes_ism.analysis.FRC_lib", "brighteyes.imaging.utils"): (
         "FRC",
         "FRC_resolution",
@@ -172,4 +158,15 @@ paths = {
     for (old, new), names in _module_moves.items()
     for name in names
 }
-removed: dict[str, str] = {}
+removed: dict[str, str] = {
+    "brighteyes_ism.analysis.Deconv_lib:FRC_MultiImg_RL_FFT": "removed from imaging",
+    "brighteyes_ism.analysis.Deconv_lib:FRC_MultiImg_RL_FFT_2": "removed from imaging",
+    "brighteyes_ism.analysis.Deconv_lib:MultiImg_RL_FFT_2": "removed from imaging",
+    "brighteyes_ism.analysis.Deconv_lib:PSF_FRC": "removed from imaging",
+    "brighteyes_ism.analysis.Deconv_lib:convolution_matrix": "removed from imaging",
+    "brighteyes_ism.analysis.Deconv_lib:deconv_RL_FFT": "removed from imaging",
+    "brighteyes_ism.analysis.Deconv_lib:deconv_Wiener": "removed from imaging",
+    "brighteyes_ism.analysis.Deconv_lib:deconv_Wiener_FFT": "removed from imaging",
+    "brighteyes_ism.analysis.Deconv_lib:disk2d": "removed from imaging",
+    "brighteyes_ism.analysis.Deconv_lib:gauss2d": "removed from imaging",
+}
