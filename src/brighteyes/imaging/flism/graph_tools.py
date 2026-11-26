@@ -8,8 +8,9 @@ from typing import TYPE_CHECKING, Any, cast
 import h5py
 import matplotlib.pyplot as plt
 import numpy as np
-from matplotlib.ticker import ScalarFormatter
 from numpy.typing import NDArray
+
+from brighteyes.mcs.dataprep import graph as dataprep_graph
 
 from . import tools_phasor as flim
 
@@ -65,11 +66,7 @@ def crop_2d(array: ArrayLike, crop: int = 0) -> Array:
 
 def normalize_histogram(histogram: ArrayLike) -> FloatArray:
     """Return a unit-sum copy of a histogram, or zeros when it cannot be normalized."""
-    histogram = np.asarray(histogram, dtype=float)
-    total = np.sum(histogram)
-    if not np.isfinite(total) or total <= 0:
-        return np.zeros_like(histogram, dtype=float)
-    return cast(FloatArray, histogram / total)
+    return cast("FloatArray", dataprep_graph.normalize_histogram(histogram))
 
 
 def threshold_lifetime_map(
@@ -107,49 +104,9 @@ def weighted_lifetime_stats(
     lifetime: ArrayLike, weights: ArrayLike | None = None
 ) -> tuple[float, float]:
     """Return weighted mean and RMS for finite lifetime values."""
-    lifetime = np.asarray(lifetime, dtype=float).ravel()
-    mask = np.isfinite(lifetime)
-    if weights is None:
-        values = lifetime[mask]
-        if values.size == 0:
-            return np.nan, np.nan
-        return float(np.mean(values)), float(np.std(values))
-
-    weight_values = np.asarray(weights, dtype=float).ravel()
-    if weight_values.size != lifetime.size:
-        raise ValueError("weights must match lifetime size")
-    mask &= np.isfinite(weight_values) & (weight_values > 0)
-    values = lifetime[mask]
-    weight_values = weight_values[mask]
-    if values.size == 0 or np.sum(weight_values) <= 0:
-        return np.nan, np.nan
-    mean = float(np.average(values, weights=weight_values))
-    variance = float(np.average((values - mean) ** 2, weights=weight_values))
-    return mean, float(np.sqrt(max(variance, 0.0)))
-
-
-def _format_histogram_axis(
-    ax: Any, lifetime_axis: str = "x", count_label: str = "Pixel counts"
-) -> None:
-    if lifetime_axis == "x":
-        ax.yaxis.tick_right()
-        ax.yaxis.set_label_position("right")
-        ax.set_xlabel("Lifetime (ns)")
-        ax.set_ylabel(count_label)
-    elif lifetime_axis == "y":
-        ax.xaxis.tick_top()
-        ax.xaxis.set_label_position("top")
-        ax.set_xlabel(count_label)
-        ax.set_ylabel("Lifetime (ns)")
-    else:
-        raise ValueError("lifetime_axis must be 'x' or 'y'")
-
-    formatter = ScalarFormatter(useMathText=True)
-    formatter.set_powerlimits((3, 3))
-    if lifetime_axis == "x":
-        ax.yaxis.set_major_formatter(formatter)
-    else:
-        ax.xaxis.set_major_formatter(formatter)
+    return cast(
+        "tuple[float, float]", dataprep_graph.weighted_lifetime_stats(lifetime, weights)
+    )
 
 
 def _column(table: Any, name: str) -> Array:
@@ -665,74 +622,19 @@ def plot_lifetime_histogram(
     count_label: str = "Pixel counts",
 ) -> Any:
     """Plot a lifetime histogram with optional intensity weights and Gaussian overlay."""
-    if ax is None:
-        _, ax = plt.subplots()
-    if lifetime_axis not in {"x", "y"}:
-        raise ValueError("lifetime_axis must be 'x' or 'y'")
-
-    values = np.asarray(lifetime, dtype=float).ravel()
-    mask = np.isfinite(values)
-    if weights is not None:
-        weights = np.asarray(weights, dtype=float).ravel()
-        if weights.size != values.size:
-            raise ValueError("weights must match lifetime size")
-        mask &= np.isfinite(weights) & (weights > 0)
-        weights = weights[mask]
-    values = values[mask]
-
-    hist, edges = np.histogram(
-        values, bins=bins, range=lifetime_bounds, weights=weights
+    return dataprep_graph.plot_lifetime_histogram(
+        lifetime,
+        weights,
+        lifetime_bounds,
+        bins,
+        ax,
+        color,
+        edgecolor,
+        gaussian,
+        label,
+        lifetime_axis,
+        count_label,
     )
-    centers = 0.5 * (edges[:-1] + edges[1:])
-    if lifetime_axis == "x":
-        ax.plot(
-            centers,
-            hist,
-            drawstyle="steps-mid",
-            color=edgecolor,
-            linewidth=1.5,
-            label=label,
-        )
-        ax.fill_between(centers, hist, step="mid", facecolor=color, alpha=0.6)
-    else:
-        ax.plot(
-            hist,
-            centers,
-            drawstyle="steps-mid",
-            color=edgecolor,
-            linewidth=1.5,
-            label=label,
-        )
-        ax.fill_betweenx(centers, hist, step="mid", facecolor=color, alpha=0.6)
-
-    if gaussian and values.size > 1:
-        mean, rms = weighted_lifetime_stats(values, weights=weights)
-        if np.isfinite(mean) and np.isfinite(rms) and rms > 0:
-            curve = np.exp(-0.5 * ((centers - mean) / rms) ** 2)
-            if np.sum(curve) > 0:
-                curve = curve * (np.sum(hist) / np.sum(curve))
-            if lifetime_axis == "x":
-                ax.plot(
-                    centers,
-                    curve,
-                    color="red",
-                    linewidth=2,
-                    label=f"mu={mean:.2f} ns, sigma={rms:.2f} ns",
-                )
-                ax.axvline(mean, color="red", linestyle="--", linewidth=1)
-            else:
-                ax.plot(
-                    curve,
-                    centers,
-                    color="red",
-                    linewidth=2,
-                    label=f"mu={mean:.2f} ns, sigma={rms:.2f} ns",
-                )
-                ax.axhline(mean, color="red", linestyle="--", linewidth=1)
-            ax.legend(loc="upper right")
-
-    _format_histogram_axis(ax, lifetime_axis=lifetime_axis, count_label=count_label)
-    return ax
 
 
 def plot_lifetime_summary(
