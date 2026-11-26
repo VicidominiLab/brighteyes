@@ -1,4 +1,0 @@
-sphinx
-sphinx-autodocgen
-sphinx-rtd-theme
--e . 

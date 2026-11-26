@@ -129,7 +129,6 @@ extend-exclude = [
     "src/brighteyes/mcs",
     "tests/mcs",
     "examples",
-    "docs/imaging-ism",
 ]
 
 [tool.ruff.lint]
