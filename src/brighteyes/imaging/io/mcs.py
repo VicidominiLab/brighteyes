@@ -4,5 +4,4 @@
 The implementation lives in :mod:`brighteyes.mcs.reader.reader_legacy`.
 """
 
-from brighteyes.mcs.reader.reader_legacy import *  # noqa: F401,F403
-from brighteyes.mcs.reader.reader_legacy import __all__
+from brighteyes.mcs.reader.reader_legacy import *

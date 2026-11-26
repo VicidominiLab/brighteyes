@@ -1,14 +1,26 @@
 # Origin: VicidominiLab/BrightEyes-FLISM, src/brighteyes_flism/graph_tools.py at 85f0d96.
 """Common plotting helpers for BrightEyes FLISM notebooks."""
 
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Any, cast
+
 import h5py
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
 from matplotlib.ticker import ScalarFormatter
+from numpy.typing import NDArray
 
 from . import tools_phasor as flim
 
+if TYPE_CHECKING:
+    from collections.abc import Sequence
+    from os import PathLike
+
+    from numpy.typing import ArrayLike
+
 try:
+    gra: Any
     import brighteyes.imaging.analysis.Graph_lib as gra
 except ImportError:  # pragma: no cover - optional dependency
     gra = None
@@ -18,24 +30,29 @@ __all__ = [
     "load_calibration_fit_traces",
     "load_calibration_summary",
     "normalize_histogram",
-    "threshold_lifetime_map",
-    "weighted_lifetime_stats",
     "plot_calibration_fit_traces",
     "plot_calibration_lifetime_summary",
     "plot_calibration_shift_summary",
     "plot_channel_skew_correction",
+    "plot_equalized_lifetime_summary",
     "plot_lifetime_histogram",
     "plot_lifetime_summary",
-    "plot_equalized_lifetime_summary",
+    "threshold_lifetime_map",
+    "weighted_lifetime_stats",
 ]
 
+Array = NDArray[Any]
+FloatArray = NDArray[np.float64]
 
-def _require_graph_lib():
+
+def _require_graph_lib() -> None:
     if gra is None:
-        raise ImportError("FLIM map plotting requires brighteyes.imaging.analysis.Graph_lib")
+        raise ImportError(
+            "FLIM map plotting requires brighteyes.imaging.analysis.Graph_lib"
+        )
 
 
-def crop_2d(array, crop=0):
+def crop_2d(array: ArrayLike, crop: int = 0) -> Array:
     """Crop a 2D array by the same number of pixels on each border."""
     array = np.asarray(array)
     crop = int(crop)
@@ -48,22 +65,22 @@ def crop_2d(array, crop=0):
     return array[..., crop:-crop, crop:-crop]
 
 
-def normalize_histogram(histogram):
+def normalize_histogram(histogram: ArrayLike) -> FloatArray:
     """Return a unit-sum copy of a histogram, or zeros when it cannot be normalized."""
     histogram = np.asarray(histogram, dtype=float)
     total = np.sum(histogram)
     if not np.isfinite(total) or total <= 0:
         return np.zeros_like(histogram, dtype=float)
-    return histogram / total
+    return cast(FloatArray, histogram / total)
 
 
-def threshold_lifetime_map(lifetime, intensity=None, threshold=0.05, finite_only=True):
-    """
-    Return thresholded lifetime/intensity vectors and the 2D mask.
-
-    ``threshold`` is a fraction of the maximum intensity when ``intensity`` is
-    provided. Without intensity, only finite lifetime values are retained.
-    """
+def threshold_lifetime_map(
+    lifetime: ArrayLike,
+    intensity: ArrayLike | None = None,
+    threshold: float = 0.05,
+    finite_only: bool = True,
+) -> tuple[FloatArray, FloatArray | None, NDArray[np.bool_]]:
+    """Return thresholded lifetime and intensity values with their mask."""
     lifetime = np.asarray(lifetime, dtype=float)
     if intensity is None:
         mask = np.ones(lifetime.shape, dtype=bool)
@@ -88,7 +105,9 @@ def threshold_lifetime_map(lifetime, intensity=None, threshold=0.05, finite_only
     return lifetime[mask].ravel(), intensity_values, mask
 
 
-def weighted_lifetime_stats(lifetime, weights=None):
+def weighted_lifetime_stats(
+    lifetime: ArrayLike, weights: ArrayLike | None = None
+) -> tuple[float, float]:
     """Return weighted mean and RMS for finite lifetime values."""
     lifetime = np.asarray(lifetime, dtype=float).ravel()
     mask = np.isfinite(lifetime)
@@ -98,20 +117,22 @@ def weighted_lifetime_stats(lifetime, weights=None):
             return np.nan, np.nan
         return float(np.mean(values)), float(np.std(values))
 
-    weights = np.asarray(weights, dtype=float).ravel()
-    if weights.size != lifetime.size:
+    weight_values = np.asarray(weights, dtype=float).ravel()
+    if weight_values.size != lifetime.size:
         raise ValueError("weights must match lifetime size")
-    mask &= np.isfinite(weights) & (weights > 0)
+    mask &= np.isfinite(weight_values) & (weight_values > 0)
     values = lifetime[mask]
-    weights = weights[mask]
-    if values.size == 0 or np.sum(weights) <= 0:
+    weight_values = weight_values[mask]
+    if values.size == 0 or np.sum(weight_values) <= 0:
         return np.nan, np.nan
-    mean = float(np.average(values, weights=weights))
-    variance = float(np.average((values - mean) ** 2, weights=weights))
+    mean = float(np.average(values, weights=weight_values))
+    variance = float(np.average((values - mean) ** 2, weights=weight_values))
     return mean, float(np.sqrt(max(variance, 0.0)))
 
 
-def _format_histogram_axis(ax, lifetime_axis="x", count_label="Pixel counts"):
+def _format_histogram_axis(
+    ax: Any, lifetime_axis: str = "x", count_label: str = "Pixel counts"
+) -> None:
     if lifetime_axis == "x":
         ax.yaxis.tick_right()
         ax.yaxis.set_label_position("right")
@@ -133,7 +154,7 @@ def _format_histogram_axis(ax, lifetime_axis="x", count_label="Pixel counts"):
         ax.xaxis.set_major_formatter(formatter)
 
 
-def _column(table, name):
+def _column(table: Any, name: str) -> Array:
     if hasattr(table, "__getitem__"):
         values = table[name]
         if hasattr(values, "to_numpy"):
@@ -142,7 +163,7 @@ def _column(table, name):
     raise TypeError("table must provide column access by name")
 
 
-def _column_any(table, names):
+def _column_any(table: Any, names: Sequence[str]) -> Array:
     errors = []
     for name in names:
         try:
@@ -153,7 +174,7 @@ def _column_any(table, names):
     raise KeyError(f"table must provide one of these columns: {joined}") from None
 
 
-def _calibration_group(handle, product="spad"):
+def _calibration_group(handle: Any, product: str = "spad") -> Any:
     product = str(product).strip("/") or "spad"
     product = {
         "data": "spad",
@@ -174,7 +195,7 @@ def _calibration_group(handle, product="spad"):
     raise KeyError(f"could not find calibration product {product!r}; tried {tried}")
 
 
-def _read_dataset_any(group, paths, default=None):
+def _read_dataset_any(group: Any, paths: Sequence[str], default: Any = None) -> Any:
     for path in paths:
         key = str(path).strip("/")
         if key in group:
@@ -185,7 +206,9 @@ def _read_dataset_any(group, paths, default=None):
     raise KeyError(f"could not find any dataset under {group.name}: {tried}")
 
 
-def load_calibration_summary(file_path, product="spad"):
+def load_calibration_summary(
+    file_path: str | PathLike[str], product: str = "spad"
+) -> dict[str, Array]:
     """Load a calibration summary table from canonical BrightEyes HDF5 groups."""
     with h5py.File(file_path, "r") as handle:
         group = _calibration_group(handle, product)
@@ -223,7 +246,12 @@ def load_calibration_summary(file_path, product="spad"):
     }
 
 
-def load_calibration_fit_traces(file_path, product="spad", channel=None, channel_position=None):
+def load_calibration_fit_traces(
+    file_path: str | PathLike[str],
+    product: str = "spad",
+    channel: int | None = None,
+    channel_position: int | None = None,
+) -> dict[str, FloatArray]:
     """Load per-channel calibration traces from canonical BrightEyes HDF5 groups."""
     with h5py.File(file_path, "r") as handle:
         group = _calibration_group(handle, product)
@@ -234,7 +262,9 @@ def load_calibration_fit_traces(file_path, product="spad", channel=None, channel
             else:
                 matches = np.flatnonzero(channel_index == int(channel))
                 if matches.size == 0:
-                    raise KeyError(f"channel {channel!r} is not present in {group.name}")
+                    raise KeyError(
+                        f"channel {channel!r} is not present in {group.name}"
+                    )
                 channel_position = int(matches[0])
         channel_position = int(channel_position)
 
@@ -258,16 +288,16 @@ def load_calibration_fit_traces(file_path, product="spad", channel=None, channel
 
 
 def _plot_vertical_value_histogram(
-    values,
-    ax,
-    bins,
-    color=None,
-    label=None,
-    alpha=0.22,
-    linewidth=1.4,
-    gaussian=False,
-    show_stats=False,
-):
+    values: Array,
+    ax: Any,
+    bins: Any,
+    color: str | None = None,
+    label: str | None = None,
+    alpha: float = 0.22,
+    linewidth: float = 1.4,
+    gaussian: bool = False,
+    show_stats: bool = False,
+) -> None:
     values = np.asarray(values, dtype=float).ravel()
     values = values[np.isfinite(values)]
     if values.size == 0:
@@ -311,7 +341,11 @@ def _plot_vertical_value_histogram(
         )
 
 
-def plot_calibration_lifetime_summary(summary_table, fig=None, histogram_lifetime_axis="y"):
+def plot_calibration_lifetime_summary(
+    summary_table: Any,
+    fig: Any = None,
+    histogram_lifetime_axis: str = "y",
+) -> Any:
     """Plot fitted calibration lifetime and reference lifetime by channel."""
     channels = _column_any(summary_table, ("channel", "index"))
     tau = _column(summary_table, "tau_ns").astype(float)
@@ -321,7 +355,9 @@ def plot_calibration_lifetime_summary(summary_table, fig=None, histogram_lifetim
 
     if fig is None:
         fig = plt.figure(figsize=(12, 6), constrained_layout=True)
-    gs = fig.add_gridspec(2, 2, width_ratios=[4, 1.2], height_ratios=[1, 0.55], wspace=0.16)
+    gs = fig.add_gridspec(
+        2, 2, width_ratios=[4, 1.2], height_ratios=[1, 0.55], wspace=0.16
+    )
     ax_tau = fig.add_subplot(gs[0, 0])
     share_lifetime_axis = ax_tau if histogram_lifetime_axis == "y" else None
     ax_hist = fig.add_subplot(gs[0, 1], sharey=share_lifetime_axis)
@@ -340,13 +376,17 @@ def plot_calibration_lifetime_summary(summary_table, fig=None, histogram_lifetim
         label="Fitted lifetime",
     )
     if np.any(np.isfinite(tau_ref)):
-        ax_tau.plot(channels, tau_ref, "o-", color="tab:orange", label="Reference lifetime")
+        ax_tau.plot(
+            channels, tau_ref, "o-", color="tab:orange", label="Reference lifetime"
+        )
     mean_tau = np.nanmean(tau)
     std_tau = np.nanstd(tau)
     if np.isfinite(mean_tau):
         ax_tau.axhline(mean_tau, color="tab:blue", alpha=0.7)
         if np.isfinite(std_tau) and std_tau > 0:
-            ax_tau.axhspan(mean_tau - std_tau, mean_tau + std_tau, color="tab:blue", alpha=0.08)
+            ax_tau.axhspan(
+                mean_tau - std_tau, mean_tau + std_tau, color="tab:blue", alpha=0.08
+            )
     ax_tau.set_ylabel("Lifetime (ns)")
     ax_tau.set_title("Calibration lifetime by channel")
     ax_tau.grid(True, alpha=0.3)
@@ -366,7 +406,9 @@ def plot_calibration_lifetime_summary(summary_table, fig=None, histogram_lifetim
         ax_hist.tick_params(axis="y", labelleft=False, labelright=False)
         ax_hist.set_ylabel("")
 
-    ax_error.plot(channels, residual_error, "o-", color="tab:red", linewidth=1.8, markersize=5)
+    ax_error.plot(
+        channels, residual_error, "o-", color="tab:red", linewidth=1.8, markersize=5
+    )
     ax_error.set_xlabel("Channel")
     ax_error.set_ylabel("Fit RMSE")
     ax_error.grid(True, alpha=0.3)
@@ -387,7 +429,12 @@ def plot_calibration_lifetime_summary(summary_table, fig=None, histogram_lifetim
     return fig, (ax_tau, ax_hist, ax_error)
 
 
-def plot_calibration_shift_summary(summary_tables, labels=None, reference_channel=None, fig=None):
+def plot_calibration_shift_summary(
+    summary_tables: Any,
+    labels: Sequence[str] | None = None,
+    reference_channel: int | None = None,
+    fig: Any = None,
+) -> Any:
     """Plot stored channel skew and common delay for one or more calibration groups."""
     if not isinstance(summary_tables, (list, tuple)):
         summary_tables = [summary_tables]
@@ -428,7 +475,9 @@ def plot_calibration_shift_summary(summary_tables, labels=None, reference_channe
 
     for table, label in zip(summary_tables, labels):
         channels = _column_any(table, ("channel", "index"))
-        channel_skew = _column_any(table, ("channel_skew", "channel_skew_bins")).astype(float)
+        channel_skew = _column_any(table, ("channel_skew", "channel_skew_bins")).astype(
+            float
+        )
         channel_skew_err = _column_any(
             table,
             ("channel_skew_err", "channel_skew_err_bins"),
@@ -516,7 +565,13 @@ def plot_calibration_shift_summary(summary_tables, labels=None, reference_channe
     return fig, (ax_shift, ax_delay)
 
 
-def plot_calibration_fit_traces(t, traces, title=None, ax=None, log_scale=True):
+def plot_calibration_fit_traces(
+    t: ArrayLike,
+    traces: dict[str, FloatArray],
+    title: str | None = None,
+    ax: Any = None,
+    log_scale: bool = True,
+) -> Any:
     """Plot normalized calibration histograms and fitted trace for one channel."""
     if ax is None:
         _, ax = plt.subplots(figsize=(10, 4))
@@ -556,22 +611,24 @@ def plot_calibration_fit_traces(t, traces, title=None, ax=None, log_scale=True):
 
 
 def plot_channel_skew_correction(
-    irf_no_alignment,
-    irf_aligned,
-    data_no_alignment,
-    data_aligned,
-    irf_reversed=None,
-    data_reversed=None,
-    fig=None,
-    axs=None,
-):
+    irf_no_alignment: ArrayLike,
+    irf_aligned: ArrayLike,
+    data_no_alignment: ArrayLike,
+    data_aligned: ArrayLike,
+    irf_reversed: ArrayLike | None = None,
+    data_reversed: ArrayLike | None = None,
+    fig: Any = None,
+    axs: Any = None,
+) -> Any:
     """Compare summed IRF and data traces before and after channel-skew correction."""
     if fig is None or axs is None:
         fig, axs = plt.subplots(1, 2, figsize=(15, 5))
 
     axs[0].plot(irf_no_alignment, label="No correction", color="tab:blue", linewidth=1)
     if irf_reversed is not None:
-        axs[0].plot(irf_reversed, label="Reversed correction", color="tab:orange", linewidth=1)
+        axs[0].plot(
+            irf_reversed, label="Reversed correction", color="tab:orange", linewidth=1
+        )
     axs[0].plot(irf_aligned, label="Corrected", color="black", linewidth=2)
     axs[0].set_title("Summed IRF")
     axs[0].set_xlabel("Time bin")
@@ -581,7 +638,9 @@ def plot_channel_skew_correction(
 
     axs[1].plot(data_no_alignment, label="No correction", color="tab:blue", linewidth=1)
     if data_reversed is not None:
-        axs[1].plot(data_reversed, label="Reversed correction", color="tab:orange", linewidth=1)
+        axs[1].plot(
+            data_reversed, label="Reversed correction", color="tab:orange", linewidth=1
+        )
     axs[1].plot(data_aligned, label="Corrected", color="black", linewidth=2)
     axs[1].set_title("Summed data")
     axs[1].set_xlabel("Time bin")
@@ -595,18 +654,18 @@ def plot_channel_skew_correction(
 
 
 def plot_lifetime_histogram(
-    lifetime,
-    weights=None,
-    lifetime_bounds=None,
-    bins=500,
-    ax=None,
-    color="yellowgreen",
-    edgecolor="darkgreen",
-    gaussian=True,
-    label=None,
-    lifetime_axis="x",
-    count_label="Pixel counts",
-):
+    lifetime: ArrayLike,
+    weights: ArrayLike | None = None,
+    lifetime_bounds: tuple[float, float] | None = None,
+    bins: int = 500,
+    ax: Any = None,
+    color: str = "yellowgreen",
+    edgecolor: str = "darkgreen",
+    gaussian: bool = True,
+    label: str | None = None,
+    lifetime_axis: str = "x",
+    count_label: str = "Pixel counts",
+) -> Any:
     """Plot a lifetime histogram with optional intensity weights and Gaussian overlay."""
     if ax is None:
         _, ax = plt.subplots()
@@ -623,10 +682,19 @@ def plot_lifetime_histogram(
         weights = weights[mask]
     values = values[mask]
 
-    hist, edges = np.histogram(values, bins=bins, range=lifetime_bounds, weights=weights)
+    hist, edges = np.histogram(
+        values, bins=bins, range=lifetime_bounds, weights=weights
+    )
     centers = 0.5 * (edges[:-1] + edges[1:])
     if lifetime_axis == "x":
-        ax.plot(centers, hist, drawstyle="steps-mid", color=edgecolor, linewidth=1.5, label=label)
+        ax.plot(
+            centers,
+            hist,
+            drawstyle="steps-mid",
+            color=edgecolor,
+            linewidth=1.5,
+            label=label,
+        )
         ax.fill_between(centers, hist, step="mid", facecolor=color, alpha=0.6)
     else:
         ax.plot(
@@ -670,18 +738,18 @@ def plot_lifetime_histogram(
 
 
 def plot_lifetime_summary(
-    intensity,
-    lifetime,
-    pxsize,
-    pxdwelltime,
-    lifetime_bounds=(1.0, 5.0),
-    crop=0,
-    threshold=0.05,
-    bins=500,
-    colormap="turbo",
-    weighted_histogram=True,
-    fig=None,
-):
+    intensity: ArrayLike,
+    lifetime: ArrayLike,
+    pxsize: float,
+    pxdwelltime: float,
+    lifetime_bounds: tuple[float, float] = (1.0, 5.0),
+    crop: int = 0,
+    threshold: float = 0.05,
+    bins: int = 500,
+    colormap: str = "turbo",
+    weighted_histogram: bool = True,
+    fig: Any = None,
+) -> Any:
     """Show a FLIM map together with a thresholded lifetime histogram."""
     _require_graph_lib()
 
@@ -730,21 +798,21 @@ def plot_lifetime_summary(
 
 
 def plot_equalized_lifetime_summary(
-    intensity,
-    lifetime,
-    pxsize,
-    pxdwelltime,
-    lifetime_bounds=(1.0, 8.0),
-    crop=0,
-    threshold=0.05,
-    bins=500,
-    colormap="turbo",
-    equalization_reference=None,
-    equalization_strength=4.0,
-    equalization_bins=4096,
-    colorbar_ticks=12,
-    fig=None,
-):
+    intensity: ArrayLike,
+    lifetime: ArrayLike,
+    pxsize: float,
+    pxdwelltime: float,
+    lifetime_bounds: tuple[float, float] = (1.0, 8.0),
+    crop: int = 0,
+    threshold: float = 0.05,
+    bins: int = 500,
+    colormap: str = "turbo",
+    equalization_reference: ArrayLike | None = None,
+    equalization_strength: float = 4.0,
+    equalization_bins: int = 4096,
+    colorbar_ticks: int = 12,
+    fig: Any = None,
+) -> Any:
     """Compare linear and equalized FLIM hue axes and show the lifetime histogram."""
     _require_graph_lib()
 
@@ -755,7 +823,9 @@ def plot_equalized_lifetime_summary(
 
     display_intensity = crop_2d(intensity, crop)
     display_lifetime = crop_2d(lifetime, crop)
-    hist_lifetime, _, _ = threshold_lifetime_map(lifetime, intensity=intensity, threshold=threshold)
+    hist_lifetime, _, _ = threshold_lifetime_map(
+        lifetime, intensity=intensity, threshold=threshold
+    )
     if equalization_reference is None:
         equalization_reference = hist_lifetime
 

@@ -1,89 +1,93 @@
 # Origin: VicidominiLab/BrightEyes-ISM, src/brighteyes_ism/simulation/simulator.py at d799720.
-import numpy as np
-from scipy.signal import convolve
+"""Noisy image simulation from sample phantoms and PSFs."""
+
+from __future__ import annotations
+
 import copy as cp
+from typing import Any, cast
+
+import numpy as np
+from numpy.typing import NDArray
+from scipy.signal import convolve
+
+Array = NDArray[Any]
 
 
 class ImageSimulator:
-    """
-    Object with methods to generate the forward model of a (multichannel) microscope.
-    The number of dimensions of phantom and the psf should differ by 1 at most.
-    In this case, the last dimension of the psf is interpreted as the channel.
+    """Generate noisy microscope images from phantoms and point spread functions."""
 
-    Attributes
-    ----------
-    image : np.ndarray
-        image convolved with the psf and corrupted by shot noise
-    clean_image : np.ndarray
-        image convolved with the psf without noise
-    phantom : np.ndarray
-        stucture of the specimen
-    psf : np.ndarray
-        point spread function. The last dimension is the channel.
-    signal : float
-        brightness of the sample (units: photon counts)
+    def __init__(
+        self,
+        phantom: Array | None = None,
+        psf: Array | None = None,
+        signal: Any = 1,
+        z_projection: bool = False,
+    ) -> None:
+        """Initialize an image simulator."""
+        self.image: Array | None = None
+        self.clean_image: Array | None = None
+        self.phantom: Array | None = phantom
+        self.psf: Array | None = psf
+        self.signal: Array = np.array(signal)
+        self.z_projection: bool = z_projection
 
-    Methods
-    -------
-    blur :
-        Generates the clean image.
-    poisson_noise :
-        Corrupts the clean image with shot noise.
-    forward :
-        Generates the blurred and noisy image.
-
-    """
-    def __init__(self, phantom=None, psf=None, signal=1, z_projection=False):
-        self.image = None
-        self.clean_image = None
-        self.phantom = phantom
-        self.psf = psf
-        self.signal = np.array(signal)
-        self.z_projection = z_projection
-
-    def blur(self):
+    def blur(self) -> None:
+        """Convolve the phantom with the point spread function."""
         gt = self.ground_truth
-        num_ch = np.ndim(self.psf) - np.ndim(self.phantom)
-        sz = self.psf.shape
+        psf = cast(Array, self.psf)
+        phantom = cast(Array, self.phantom)
+        num_ch = np.ndim(psf) - np.ndim(phantom)
+        sz = psf.shape
 
-        self.clean_image = np.empty(gt.shape + (self.psf.shape[-1],))
+        self.clean_image = np.empty(gt.shape + (psf.shape[-1],))
+        clean_image = cast(Array, self.clean_image)
 
         if num_ch == 1:
-            if np.ndim(self.phantom) == 3 and self.z_projection is True:
+            if np.ndim(phantom) == 3 and self.z_projection is True:
                 for z in range(sz[0]):
                     for c in range(sz[-1]):
-                        self.clean_image[z, ..., c] = convolve(gt[z], self.psf[z, ..., c], mode='same')
-                self.clean_image = self.clean_image.sum(0)
+                        clean_image[z, ..., c] = convolve(
+                            gt[z], psf[z, ..., c], mode="same"
+                        )
+                self.clean_image = clean_image.sum(0)
             else:
                 for c in range(sz[-1]):
-                    self.clean_image[..., c] = convolve(gt, self.psf[..., c], mode='same')
+                    clean_image[..., c] = convolve(gt, psf[..., c], mode="same")
         elif num_ch == 0:
-            if np.ndim(self.phantom) == 3 and self.z_projection is True:
+            if np.ndim(phantom) == 3 and self.z_projection is True:
                 for z in range(sz[0]):
-                    self.clean_image = convolve(gt[z], self.psf[z], mode='same')
-                self.clean_image = self.clean_image.sum(0)
+                    self.clean_image = convolve(gt[z], psf[z], mode="same")
+                self.clean_image = cast(Array, self.clean_image).sum(0)
             else:
-                self.clean_image = convolve(gt, self.psf, mode='same')
+                self.clean_image = convolve(gt, psf, mode="same")
         else:
-            raise Exception("The PSF has less dimensions than the phantom.")
-            
-        self.clean_image[self.clean_image < 0] = 0
+            raise Exception("The PSF has less dimensions than the phantom.")  # noqa: TRY002
 
-    def poisson_noise(self):
-        self.image = np.random.poisson(self.clean_image)
+        clean_image = cast(Array, self.clean_image)
+        clean_image[clean_image < 0] = 0
 
-    def forward(self):
+    def poisson_noise(self) -> None:
+        """Draw a Poisson-noise image from the clean image."""
+        self.image = np.random.poisson(cast(Array, self.clean_image))
+
+    def forward(self) -> None:
+        """Generate the blurred image and add Poisson noise."""
         self.blur()
         self.poisson_noise()
 
     @property
-    def ground_truth(self):
+    def ground_truth(self) -> Array:
+        """Return the phantom scaled by the signal."""
         if np.ndim(self.signal) == 1:
-            return np.einsum('i..., i -> i...', self.phantom, self.signal)
+            return cast(
+                Array,
+                np.einsum("i..., i -> i...", cast(Array, self.phantom), self.signal),
+            )
         elif np.ndim(self.signal) == 0:
-            return self.phantom * self.signal
+            return cast(Array, self.phantom) * self.signal
         else:
-            raise Exception("The signal should be a scalar or a 1D array.")
+            raise Exception("The signal should be a scalar or a 1D array.")  # noqa: TRY002
 
-    def copy(self):
+    def copy(self) -> ImageSimulator:
+        """Return a shallow copy of the simulator."""
         return cp.copy(self)

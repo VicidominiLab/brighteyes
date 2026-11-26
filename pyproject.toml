@@ -70,6 +70,7 @@ birfi = { git = "https://github.com/VicidominiLab/birfi", rev = "4ea6c4d" }
 
 [dependency-groups]
 dev = [
+    "mypy>=2.4.1",
     "pytest>=9.2.0",
     "ruff>=0.17.3",
 ]
@@ -85,6 +86,37 @@ reference = [
     "brighteyes-mcs-reader",
     "s2ism",
 ]
+
+[tool.mypy]
+strict = true
+
+[[tool.mypy.overrides]]
+module = [
+    "h5py.*",
+    "matplotlib_scalebar.*",
+    "matplotlib_scalebar.scalebar",
+    "mpl_toolkits.axes_grid1",
+    "mpl_toolkits.axes_grid1.*",
+    "scipy.*",
+    "skimage.*",
+    "sklearn.*",
+    "statsmodels.*",
+    "tqdm.*",
+    "joblib.*",
+    "psf_generator.*",
+    "torchvision.*",
+    "zernikepy.*",
+]
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = [
+    "brighteyes.mcs.dataprep",
+    "brighteyes.mcs.dataprep.*",
+    "brighteyes.mcs.reader",
+    "brighteyes.mcs.reader.*",
+]
+follow_imports = "skip"
 
 [tool.uv]
 required-environments = ["sys_platform == 'win32' and platform_machine == 'AMD64'"]
