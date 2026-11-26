@@ -1,5 +1,4 @@
 # Origin: VicidominiLab/BrightEyes-ISM, src/brighteyes_ism/analysis/Graph_lib.py at d799720.
-# ruff: noqa: N999
 """Plotting helpers for imaging data."""
 
 from __future__ import annotations
@@ -17,7 +16,7 @@ from matplotlib.widgets import Slider
 from matplotlib_scalebar.scalebar import ScaleBar
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 
-from ..simulation.detector import airy_to_hex, det_coords
+from ..psf.sim import airy_to_hex, det_coords
 
 if TYPE_CHECKING:
     from collections.abc import Sequence

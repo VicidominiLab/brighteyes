@@ -11,14 +11,14 @@ from scipy.signal import argrelmax, argrelmin
 from scipy.special import kl_div as kl
 from scipy.stats import pearsonr as pearson
 
-import brighteyes.imaging.analysis.Tools_lib as tool
-import brighteyes.imaging.simulation.PSF_sim as sim
+import brighteyes.imaging.utils as tool
 from brighteyes.imaging._types import Array
 from brighteyes.imaging.analysis.APR_lib import ShiftVectors
+from brighteyes.imaging.psf import sim
 
-from . import mag_finder as mag
-from . import misalignment as mis
-from . import shift_vectors_minimizer as svm
+from .. import mag_finder as mag
+from .. import misalignment as mis
+from .. import shift_vectors_minimizer as svm
 
 
 class GridFinder(sim.GridParameters):

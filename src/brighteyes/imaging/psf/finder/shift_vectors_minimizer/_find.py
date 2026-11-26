@@ -10,7 +10,7 @@ import numpy as np
 from numpy.typing import NDArray
 from scipy.optimize import minimize
 
-from brighteyes.imaging.simulation.detector import airy_to_hex, det_coords
+from brighteyes.imaging.psf.sim import airy_to_hex, det_coords
 
 FloatArray = NDArray[np.float64]
 

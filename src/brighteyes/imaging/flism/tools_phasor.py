@@ -35,7 +35,7 @@ ComplexArray = NDArray[np.complex128]
 
 try:
     gra: Any
-    import brighteyes.imaging.analysis.Graph_lib as gra
+    import brighteyes.imaging.plotting as gra
 except ImportError:  # pragma: no cover - optional dependency
     gra = None
 try:
@@ -1465,9 +1465,7 @@ def plot_flim_image(
 ) -> None:
     """Plot a lifetime map and its calibrated phasors."""
     if gra is None:
-        raise ImportError(
-            "plot_flim_image requires brighteyes.imaging.analysis.Graph_lib"
-        )
+        raise ImportError("plot_flim_image requires brighteyes.imaging.plotting")
 
     if method == "tau_phi":
         data_histograms = data_4D.sum((-2, -1))

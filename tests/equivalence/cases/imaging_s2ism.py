@@ -39,6 +39,8 @@ def _module(obj):
 
 
 def _sim(obj):
+    if obj.__module__.startswith("brighteyes.imaging."):
+        return import_module("brighteyes.imaging.psf.sim")
     return import_module(obj.__module__.rpartition(".")[0] + ".psf_estimator").sim
 
 

@@ -12,7 +12,7 @@ from scipy.optimize import least_squares
 from brighteyes.imaging._types import Array
 from brighteyes.imaging.analysis.APR_lib import ShiftVectors
 
-from .shift_vectors_minimizer import find_parameters, rotation_matrix
+from ..shift_vectors_minimizer import find_parameters, rotation_matrix
 
 FloatArray = NDArray[np.float64]
 IntArray = NDArray[np.int64]

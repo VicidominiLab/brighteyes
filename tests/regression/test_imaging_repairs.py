@@ -12,8 +12,8 @@ import numpy as np
 import pytest
 
 from brighteyes.imaging.analysis.Deconv_lib import FRC_MultiImg_RL_FFT_2
-from brighteyes.imaging.analysis.Graph_lib import depth_stack
 from brighteyes.imaging.flism import FlimData
+from brighteyes.imaging.plotting import depth_stack
 
 if TYPE_CHECKING:
     from numpy.typing import NDArray
