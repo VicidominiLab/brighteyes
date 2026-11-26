@@ -3,16 +3,13 @@
 # Origin: VicidominiLab/BrightEyes-ISM, src/brighteyes_ism/analysis/Tools_lib.py at d799720.
 from __future__ import annotations
 
-from collections.abc import Callable
 from typing import TYPE_CHECKING, cast
 
 import numpy as np
-from numpy.linalg import eig, inv
-from scipy.optimize import curve_fit
+from numpy.linalg import inv
 from scipy.special import kl_div as kullback_leibler
 from scipy.special import rel_entr
 
-from ._frc import radial_profile
 
 if TYPE_CHECKING:
     from numpy.typing import NDArray
@@ -24,41 +21,6 @@ if TYPE_CHECKING:
 def sigmoid(R: FloatArray, T: float, S: float) -> FloatArray:
     """Return a circularly symmetric sigmoid."""
     return 1 / (1 + np.exp((R - T) / S))
-
-
-def low_pass(img: Array, T: float, S: float, data: str = "real") -> Array:
-    """Apply a low-pass sigmoidal filter to an image."""
-    if data == "real":
-        img_fft: np.ndarray = np.fft.fftn(img, axes=(0, 1))
-        img_fft = np.fft.fftshift(img_fft, axes=(0, 1))
-    elif data == "fourier":
-        img_fft = img
-    else:
-        raise ValueError("data has to be 'real' or 'fourier'")
-
-    Nx = np.shape(img_fft)[0]
-    Ny = np.shape(img_fft)[1]
-    cx = int((Nx + np.mod(Nx, 2)) / 2)
-    cy = int((Ny + np.mod(Ny, 2)) / 2)
-
-    x = (np.arange(Nx) - cx) / Nx
-    y = (np.arange(Ny) - cy) / Ny
-
-    X, Y = np.meshgrid(x, y)
-    R: FloatArray = np.sqrt(X**2 + Y**2)
-
-    sig = sigmoid(R, T, S)
-
-    img_filt = cast(Callable[..., np.ndarray], np.einsum)(
-        "ij..., ij -> ij...", img_fft, sig
-    )
-
-    if data == "real":
-        img_filt = np.fft.ifftshift(img_filt, axes=(0, 1))
-        img_filt = np.fft.ifftn(img_filt, axes=(0, 1))
-        img_filt = np.abs(img_filt)
-
-    return img_filt
 
 
 # %%
@@ -183,54 +145,6 @@ def UpSample(
     return Reorder(dset_us, inOrder=default_order, outOrder=order)
 
 
-def ArgMaxND(data: Array) -> tuple[tuple[int, ...], np.generic]:
-    """Return the maximum value and its indices."""
-    idx = np.argmax(data)
-
-    mx = np.array(data).ravel()[idx]
-
-    arg = np.unravel_index(idx, np.array(data).shape)
-
-    return cast(tuple[int, ...], arg), mx
-
-
-def FWHM(
-    x: FloatArray, y: FloatArray, height: float = 0.5
-) -> tuple[float, list[float]]:
-    """Calculate the full width at half maximum of a curve."""
-    height_half_max = np.max(y) * height
-    index_max = np.argmax(y)
-    x_low = np.interp(height_half_max, y[:index_max], x[:index_max])
-    x_high = np.interp(height_half_max, np.flip(y[index_max:]), np.flip(x[index_max:]))
-    fwhm = x_high - x_low
-
-    return cast(tuple[float, list[float]], (fwhm, [x_low, x_high]))
-
-
-def RadialSpectrum(
-    img: Array, pxsize: float = 1, normalize: bool = True
-) -> tuple[Array, Array]:
-    """Calculate the radial frequency spectrum of an image."""
-    fft_img = np.fft.fftn(img, axes=[0, 1])
-    fft_img = np.abs(np.fft.fftshift(fft_img, axes=[0, 1]))
-
-    sx, sy = fft_img.shape
-    c = (sx // 2, sy // 2)
-
-    space_f = np.fft.fftfreq(sx, pxsize)[: c[0]]
-
-    profile, counts = radial_profile(fft_img, c)
-
-    ftR = profile[: c[0]] / counts[: c[0]]
-
-    ftR = np.real(ftR)
-
-    if normalize == True:
-        ftR /= np.max(ftR)
-
-    return ftR, space_f
-
-
 def fingerprint(dset: Array, volumetric: bool = False) -> Array:
     """Sum detector channels into a spatial fingerprint."""
     N = int(np.sqrt(dset.shape[-1]))
@@ -246,21 +160,6 @@ def fingerprint(dset: Array, volumetric: bool = False) -> Array:
         f = np.sum(dset, axis=axis)
         f = f.reshape(N, N)
     return cast(np.ndarray, f)
-
-
-def point_cloud_from_img(dset: Array) -> Array:
-    """Convert an image or stack into a point cloud matrix."""
-    shape = dset.shape
-
-    N = dset.size
-
-    indices = np.array(np.unravel_index(range(N), shape)).T
-
-    values = dset.flatten()
-
-    point_cloud_matrix = np.column_stack((indices, values))
-
-    return point_cloud_matrix
 
 
 def kl_divergence(
@@ -299,39 +198,6 @@ def kl_divergence(
     return kl
 
 
-def normalized_absolute_difference(ground_truth: Array, reconstruction: Array) -> Array:
-    """Return the normalized absolute difference between two images."""
-    tot_ref = ground_truth.sum()
-    tot_img = reconstruction.sum()
-
-    nad = np.abs(reconstruction / tot_img - ground_truth / tot_ref)
-
-    return cast(np.ndarray, nad)
-
-
-def check_saturation(dset: Array, sat_map: Array | None = None) -> None:
-    """Print saturation counts for each detector channel."""
-    if sat_map is None:
-        sat_map = np.ones((5, 5)) * 4
-        sat_map[1:-1, 1:-1] = 5
-        sat_map[2, 1:-1] = 6
-        sat_map[1:-1, 2] = 6
-        sat_map[2, 2] = 10
-        sat_map = 2**sat_map - 1
-        sat_map = sat_map.flatten()
-
-    n_ch = dset.shape[-1]
-    n_sat = np.empty(n_ch).astype("int")
-    n_tot = np.size(dset[..., 0])
-
-    print("\nSaturated pixels: \n")
-
-    for c in range(n_ch):
-        n_sat[c] = np.size(dset[..., c][dset[..., c] == sat_map[c]])
-        percent = 100 * n_sat[c] / n_tot
-        print(rf"Channel {c:02d}: {n_sat[c]}/{n_tot} ({percent:.2f} %)")
-
-
 def GaussMultVar(X: FloatArray, Y: FloatArray, M1: FloatArray, M2: FloatArray) -> Array:
     """Evaluate a two-dimensional multivariate Gaussian."""
     S = np.asarray([X, Y])
@@ -345,58 +211,3 @@ def GaussMultVar(X: FloatArray, Y: FloatArray, M1: FloatArray, M2: FloatArray) -
     g = np.exp(-0.5 * C)
 
     return cast(np.ndarray, g)
-
-
-def fit_to_gaussian(
-    img: Array,
-    pxsize: float,
-    baseline: bool = False,
-    p0: tuple[float, ...] | None = None,
-) -> tuple[Array, Array, Array]:
-    """Fit an image to a multivariate Gaussian."""
-    sz = img.shape
-
-    y = pxsize * (np.arange(sz[0]) - sz[0] // 2)
-    x = pxsize * (np.arange(sz[1]) - sz[1] // 2)
-
-    X, Y = np.meshgrid(x, y)
-
-    if baseline is False:
-        if p0 is None:
-            p0 = (0, 0, 1000, 0, 1000, 1)
-        fit_model: Callable[..., Array] = lambda xdata, a, b, c, d, e, f: (
-            f
-            * GaussMultVar(
-                xdata[0].reshape(sz),
-                xdata[1].reshape(sz),
-                np.asarray([a, b]),
-                np.asarray([[c, d], [d, e]]),
-            ).ravel()
-        )
-    elif baseline is True:
-        if p0 is None:
-            p0 = (0, 0, 1000, 0, 1000, 1, 0)
-        fit_model = lambda xdata, a, b, c, d, e, f, g: (
-            g
-            + f
-            * GaussMultVar(
-                xdata[0].reshape(sz),
-                xdata[1].reshape(sz),
-                np.asarray([a, b]),
-                np.asarray([[c, d], [d, e]]),
-            ).ravel()
-        )
-
-    xdata = np.vstack((X.ravel(), Y.ravel()))
-
-    popt, _ = curve_fit(fit_model, xdata, img.ravel(), p0)
-
-    img_fit = fit_model(xdata, *popt).reshape(sz)
-
-    var_matrix = np.asarray([[popt[2], popt[3]], [popt[3], popt[4]]])
-    var_matrix_diag = np.diag(eig(var_matrix)[0])
-    sigma_matrix_diag = np.sqrt(var_matrix_diag)
-
-    # D4sigma = 4 * np.sqrt(sigma_matrix_diag) / 1e3
-
-    return img_fit, sigma_matrix_diag, popt
