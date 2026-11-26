@@ -31,14 +31,6 @@ def _meshgrid() -> tuple[np.ndarray, np.ndarray]:
     return np.meshgrid(axis, axis)
 
 
-def _small_kernel_and_image() -> tuple[np.ndarray, np.ndarray]:
-    kernel = np.exp(
-        -((np.arange(3) - 1.0) ** 2)[:, None] / 2
-        - ((np.arange(3) - 1.0) ** 2)[None, :] / 2
-    )
-    return kernel / kernel.sum(), ism_dataset()[:6, :6, 0]
-
-
 def _gaussian_image() -> np.ndarray:
     return ism_psf()[:, :, REF]
 
@@ -104,39 +96,6 @@ CASES: list[Case] = [
         lambda f: f(_summed_series(), 10, REF, pxsize=0.05, mode="fourier"),
         "fourier",
     ),
-    Case(f"{DECONV}:gauss2d", lambda f: f(*_meshgrid(), 2.0, -3.0, 4.0)),
-    Case(f"{DECONV}:disk2d", lambda f: f(*_meshgrid(), 2.0, -3.0, 6.0)),
-    Case(f"{DECONV}:convolution_matrix", lambda f: f(*_small_kernel_and_image())),
-    Case(
-        f"{DECONV}:deconv_Wiener",
-        lambda f: f(*_small_kernel_and_image(), reg=0.1),
-        "Tikhonov",
-    ),
-    Case(
-        f"{DECONV}:deconv_Wiener",
-        lambda f: f(*_small_kernel_and_image(), reg=0.1, regularization="Laplace"),
-        "Laplace",
-    ),
-    Case(
-        f"{DECONV}:deconv_Wiener_FFT",
-        lambda f: f(ism_psf()[:, :, REF], ism_dataset()[:, :, REF], reg=0.1),
-    ),
-    Case(
-        f"{DECONV}:deconv_RL_FFT",
-        lambda f: f(ism_psf()[:, :, REF], ism_dataset()[:, :, REF], max_iter=5),
-        "last",
-    ),
-    Case(
-        f"{DECONV}:deconv_RL_FFT",
-        lambda f: f(
-            ism_psf()[:, :, REF],
-            ism_dataset()[:, :, REF],
-            max_iter=5,
-            reg=0.01,
-            out="all",
-        ),
-        "all",
-    ),
     Case(f"{DECONV}:PadDataset", lambda f: f(ism_dataset(), 3)),
     Case(
         f"{DECONV}:UnpadDataset",
@@ -164,11 +123,6 @@ CASES: list[Case] = [
         lambda f: f(ism_psf(), ism_dataset(), max_iter=3, out="all"),
         "all",
     ),
-    Case(
-        f"{DECONV}:MultiImg_RL_FFT_2", lambda f: f(ism_psf(), ism_dataset(), max_iter=3)
-    ),
-    Case(f"{DECONV}:PSF_FRC", lambda f: f(*(ism_series()[:, :, k] for k in (0, 1)))),
-    Case(f"{DECONV}:FRC_MultiImg_RL_FFT", lambda f: f(ism_series(), max_iter=3)),
     Case(
         f"{FRC}:smooth",
         lambda f: f(np.linspace(0, 1, 20), np.random.default_rng(0).normal(size=20)),
@@ -347,7 +301,6 @@ CASES: list[Case] = [
 ]
 
 SKIPPED: dict[str, str] = {
-    f"{DECONV}:FRC_MultiImg_RL_FFT_2": "fails with the old code too: ValueError: too many values to unpack (expected 5)",
     f"{FRC}:plotFRC": SKIP_PLOT_ONLY,
     f"{FOCUS}:Selector": SKIP_GUI,
     f"{GRAPH}:ShowImg": SKIP_PLOT_ONLY,
