@@ -4,7 +4,7 @@
 from __future__ import annotations
 
 from collections.abc import Mapping, Sequence
-from typing import Any, Literal
+from typing import Any, Literal, cast
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -12,6 +12,8 @@ import torch
 from matplotlib.axes import Axes
 from matplotlib.figure import Figure
 from numpy.typing import NDArray
+
+from brighteyes.mcs.dataprep import Alignment
 
 from ..convolution import partial_convolution
 
@@ -36,41 +38,7 @@ def pad_tensor(
     mode: PaddingMode = "reflect",
 ) -> torch.Tensor:
     """Pad a tensor along one dimension."""
-    if pad_left == 0 and pad_right == 0:
-        return x
-
-    length = x.shape[dim]
-
-    if mode == "reflect":
-        left_idx = torch.arange(pad_left, 0, -1, device=x.device)
-        right_idx = torch.arange(
-            length - 2, length - pad_right - 2, -1, device=x.device
-        )
-    elif mode == "replicate":
-        left_idx = torch.zeros(pad_left, dtype=torch.long, device=x.device)
-        right_idx = torch.full(
-            (pad_right,), length - 1, dtype=torch.long, device=x.device
-        )
-    elif mode == "constant":
-        pad_shape = list(x.shape)
-        pad_shape[dim] = pad_left + pad_right
-        constant_pad = torch.zeros(pad_shape, dtype=x.dtype, device=x.device)
-        return torch.cat(
-            [
-                constant_pad.narrow(dim, 0, pad_left),
-                x,
-                constant_pad.narrow(dim, pad_left, pad_right),
-            ],
-            dim=dim,
-        )
-    else:
-        raise ValueError(f"Unsupported padding mode: {mode}")
-
-    # Select slices
-    pad_left_tensor = x.index_select(dim, left_idx)
-    pad_right_tensor = x.index_select(dim, right_idx)
-
-    return torch.cat([pad_left_tensor, x, pad_right_tensor], dim=dim)
+    return cast("torch.Tensor", Alignment.pad_tensor(x, pad_left, pad_right, dim, mode))
 
 
 def median_filter(
@@ -80,31 +48,7 @@ def median_filter(
     mode: PaddingMode = "reflect",
 ) -> torch.Tensor:
     """Apply a median filter along selected dimensions."""
-    if dims is None:
-        dims = list(range(x.ndim))
-
-    if isinstance(window_size, int):
-        window_size = [window_size] * len(dims)
-    elif len(window_size) != len(dims):
-        raise ValueError("window_size must be scalar or match len(dims)")
-
-    # check for odd values
-    for w in window_size:
-        if w % 2 == 0:
-            raise ValueError(f"All window sizes must be odd, got {w}")
-
-    out = x
-    for d, w in zip(dims, window_size):
-        pad_left = (w - 1) // 2
-        pad_right = w // 2
-
-        # Pad along dimension
-        out = pad_tensor(out, pad_left, pad_right, d, mode=mode)
-
-        # Unfold and compute median
-        out = out.unfold(d, w, 1).median(dim=-1).values
-
-    return out
+    return cast("torch.Tensor", Alignment.median_filter(x, window_size, dims, mode))
 
 
 def generate_truncated_exponential(
