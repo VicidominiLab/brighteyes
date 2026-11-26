@@ -11,8 +11,10 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pytest
 
+from brighteyes.imaging import flism
 from brighteyes.imaging.flism import FlimData
 from brighteyes.imaging.plotting import depth_stack
+from brighteyes.mcs.dataprep import Alignment
 
 if TYPE_CHECKING:
     from numpy.typing import NDArray
@@ -55,3 +57,13 @@ def test_depth_stack_renders_image_and_colorbar_headlessly() -> None:
         assert len(figure.axes[1].images) == 1
     finally:
         plt.close(figure)
+
+
+def test_fit_maps_work_after_importing_flism() -> None:
+    """Fit lifetime maps through MCS and FLISM once the FLISM package is imported."""
+    time = np.arange(64) * 25 / 64
+    irf = np.exp(-((np.arange(64) - 3.0) ** 2) / 1.28) + 1e-4
+    data = np.random.default_rng(0).poisson(5, (2, 2, 64)).astype(float)
+    for generate_fit_maps in (Alignment.generate_fit_maps, flism.generate_fit_maps):
+        maps = generate_fit_maps(data, irf, time, 25.0, show_progress=False)
+        assert maps["tau"].shape == (2, 2)
