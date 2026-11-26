@@ -15,7 +15,11 @@ original_modules = {
     "frc": "brighteyes.imaging.analysis.FRC_lib",
     "birfi": "brighteyes.imaging.birfi.birfi",
 }
-current_modules = {**original_modules, "frc": "brighteyes.imaging.utils"}
+current_modules = {
+    **original_modules,
+    "apr": "brighteyes.imaging.extraction.apr",
+    "frc": "brighteyes.imaging.utils",
+}
 
 
 def numerical_arrays(value: object, prefix: str = "result") -> dict[str, np.ndarray]:

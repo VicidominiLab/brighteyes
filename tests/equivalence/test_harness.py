@@ -134,7 +134,7 @@ def test_run_resolves_new_path():
     assert new_path("brighteyes_ism.dataio.mcs:x") == "brighteyes.imaging.io.mcs:x"
     assert (
         new_path("brighteyes_ism.analysis.APR_lib:hann2d")
-        == "brighteyes.imaging.analysis.APR_lib:hann2d"
+        == "brighteyes.imaging.extraction.apr:hann2d"
     )
     assert new_path("brighteyes_flism.tools:x") == "brighteyes.imaging.flism.tools:x"
 
@@ -149,7 +149,10 @@ def test_new_path_maps_the_new_packages():
         new_path("brighteyes_mcs_dataprep.h5_output_writers:x")
         == "brighteyes.mcs.dataprep.h5_output_writers:x"
     )
-    assert new_path("s2ism.s2ism:x") == "brighteyes.imaging.s2ism.s2ism:x"
+    assert (
+        new_path("s2ism.s2ism:batch_reconstruction")
+        == "brighteyes.imaging.extraction.deconv.s2ism:batch_reconstruction"
+    )
     assert new_path("birfi.x:y") == "brighteyes.imaging.birfi.x:y"
     with pytest.raises(ValueError):
         new_path("s2ism_extra:x")

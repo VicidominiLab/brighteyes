@@ -1,5 +1,4 @@
 # Origin: VicidominiLab/BrightEyes-ISM, src/brighteyes_ism/analysis/FocusISM_lib.py at d799720.
-# ruff: noqa: N999
 """Focused signal reconstruction for image scanning microscopy data."""
 
 from __future__ import annotations
@@ -18,14 +17,14 @@ from matplotlib.widgets import RectangleSelector
 from sklearn.metrics import r2_score
 from tqdm import trange
 
-from . import APR_lib as APR
+from .. import apr as APR
 
 if TYPE_CHECKING:
     from matplotlib.axes import Axes
     from matplotlib.backend_bases import MouseEvent
     from matplotlib.figure import Figure
 
-    from .._types import Array
+    from ..._types import Array
 
 # %%
 

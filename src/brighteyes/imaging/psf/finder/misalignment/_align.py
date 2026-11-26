@@ -10,7 +10,7 @@ from numpy.typing import NDArray
 from scipy.optimize import least_squares
 
 from brighteyes.imaging._types import Array
-from brighteyes.imaging.analysis.APR_lib import ShiftVectors
+from brighteyes.imaging.extraction.apr import ShiftVectors
 
 from ..shift_vectors_minimizer import find_parameters, rotation_matrix
 

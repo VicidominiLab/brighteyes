@@ -4,7 +4,6 @@ import hashlib
 import json
 import platform
 import re
-from importlib import import_module
 from importlib.metadata import version
 from pathlib import Path
 from typing import Final
@@ -12,6 +11,9 @@ from typing import Final
 import numpy as np
 import torch
 from threadpoolctl import threadpool_info
+
+from brighteyes.imaging.extraction.apr import APR
+from brighteyes.imaging.extraction.focus_ism import FitFingerprint
 
 array_tolerances: Final[dict[str, tuple[float, float]]] = {
     # Bounded fits on different BLAS paths split near-zero signals differently.
@@ -164,9 +166,8 @@ def record_focus_inputs(
     image: np.ndarray, calibration: np.ndarray, directory: Path
 ) -> None:
     """Save fingerprint calibration and reassigned micro-images for focusISM."""
-    focus = import_module("brighteyes.imaging.analysis.FocusISM_lib")
-    fingerprint, model, parameters = focus.FitFingerprint(calibration)
-    shifts, reassigned = focus.APR.APR(image, 10, image.shape[-1] // 2, filter_sigma=1)
+    fingerprint, model, parameters = FitFingerprint(calibration)
+    shifts, reassigned = APR(image, 10, image.shape[-1] // 2, filter_sigma=1)
     reassigned[reassigned < 0] = 0
     directory.mkdir(parents=True, exist_ok=True)
     np.savez_compressed(

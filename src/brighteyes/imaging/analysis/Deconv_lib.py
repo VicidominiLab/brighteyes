@@ -13,7 +13,7 @@ from scipy.signal import convolve
 from tqdm import tqdm
 
 from .. import utils as FRC
-from . import APR_lib as APR
+from ..extraction import apr as APR
 
 if TYPE_CHECKING:
     from .._types import Array

@@ -3,7 +3,6 @@
 
 from __future__ import annotations
 
-# ruff: noqa: N999
 from collections.abc import Callable
 from typing import TYPE_CHECKING, cast
 
@@ -12,12 +11,12 @@ from scipy.ndimage import fourier_shift, shift
 from skimage.filters import gaussian
 from skimage.registration import phase_cross_correlation
 
-from ._windows import hann_window_2d
+from ..._windows import hann_window_2d
 
 if TYPE_CHECKING:
     from numpy.typing import NDArray
 
-    from .._types import Array
+    from ..._types import Array
 
 
 def hann2d(shape: tuple[int, ...]) -> NDArray[np.float64]:

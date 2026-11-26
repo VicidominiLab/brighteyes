@@ -1,5 +1,4 @@
 # Origin: VicidominiLab/BrightEyes-ISM, src/brighteyes_ism/simulation/Tubulin_sim.py at d799720.
-# ruff: noqa: N999
 """Tubulin phantom simulation utilities."""
 
 from __future__ import annotations
