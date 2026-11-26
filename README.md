@@ -16,6 +16,8 @@ Install the extra of each subpackage you need:
 | `brighteyes.mcs` | Reading and preparing HDF5 files from the MCS acquisition software | `mcs` |
 | `brighteyes.imaging` | ISM, FLISM, s2ISM and birfi; also installs `mcs` | `imaging` |
 
+Code written for the original BrightEyes-ISM, s2ISM, birfi, BrightEyes-FLISM and MCS packages needs new imports; [Moving from the original packages](docs/migration.md) lists them.
+
 ## Development
 
 Install the imaging and development dependencies with `uv sync --locked --extra imaging --group dev`. Build the pure Python package with `uv build`.
