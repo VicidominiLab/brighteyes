@@ -139,8 +139,8 @@ _module_moves = {
         "batch_reconstruction",
         "data_driven_reconstruction",
         "max_likelihood_reconstruction",
-        "partial_convolution_rfft",
     ),
+    ("s2ism.s2ism", "brighteyes.imaging.convolution"): ("partial_convolution_rfft",),
     ("s2ism.dataio", "brighteyes.imaging.extraction.deconv.s2ism"): (
         "is_mcs_file",
         "list_mcs_datasets",
