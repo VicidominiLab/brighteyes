@@ -16,19 +16,23 @@
   },
   "s2ism-hela-tubulin-a": {
     "archive": "s2ism-full",
-    "member": "HeLa_cell_A_tubulin_data-16-12-2022-18-20-18.h5"
+    "member": "HeLa_cell_A_tubulin_data-16-12-2022-18-20-18.h5",
+    "size": 2429742976
   },
   "s2ism-lamina-tubulin-flim": {
     "archive": "s2ism-full",
-    "member": "Lamina_tubulin_flim_data-10-04-2024-19-27-47.h5"
+    "member": "Lamina_tubulin_flim_data-10-04-2024-19-27-47.h5",
+    "size": 7799439744
   },
   "s2ism-lamina-tubulin-flim-irf": {
     "archive": "s2ism-full",
-    "member": "IRF_for_lamina_tubulin_flim_data-10-04-2024-19-50-34.h5"
+    "member": "IRF_for_lamina_tubulin_flim_data-10-04-2024-19-50-34.h5",
+    "size": 1317139352
   },
   "s2ism-mitochondria-timelapse": {
     "archive": "s2ism-full",
-    "member": "Mithocondria_timelapse_data-09-11-2023-12-47-10.h5"
+    "member": "Mithocondria_timelapse_data-09-11-2023-12-47-10.h5",
+    "size": 1312815448
   },
   "birfi-small": {
     "path": "birfi-small.npz",

@@ -50,13 +50,21 @@ def fetch(name: str) -> Path:
 
     if "archive" not in entry:
         return Path(retrieve(entry))
-    extracted = retrieve(
-        catalog[entry["archive"]], processor=pooch.Unzip(members=[entry["member"]])
-    )
-    return Path(extracted[0])
+    # An interrupted extraction leaves a short file that pooch would reuse.
+    for _ in range(2):
+        extracted = retrieve(
+            catalog[entry["archive"]], pooch.Unzip(members=[entry["member"]])
+        )
+        if not extracted:
+            raise ValueError(f"dataset member not in archive: {name}")
+        path = Path(extracted[0])
+        if path.stat().st_size == entry["size"]:
+            return path
+        path.unlink()
+    raise ValueError(f"dataset size mismatch: {name}")
 
 
-def retrieve(entry: dict[str, str], **kwargs: Any) -> Any:
+def retrieve(entry: dict[str, str], processor: pooch.Unzip | None = None) -> Any:
     """Download a published file into the user cache unless it is already there."""
     return pooch.retrieve(
         url=entry["url"],
@@ -64,5 +72,5 @@ def retrieve(entry: dict[str, str], **kwargs: Any) -> Any:
         fname=entry["filename"],
         path=pooch.os_cache("brighteyes"),
         progressbar=True,
-        **kwargs,
+        processor=processor,
     )
