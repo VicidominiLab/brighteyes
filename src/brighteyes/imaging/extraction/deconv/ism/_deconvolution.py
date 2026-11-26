@@ -24,16 +24,16 @@ def MultiImg_RL_FFT(
     out: str = "last",
 ) -> Array | None:
     """Run Richardson-Lucy deconvolution on multiple images."""
+    if pad is not None:
+        h = PadDataset(h, pad)
+        i = PadDataset(i, pad)
+
     if out == "all":
         sz = [max_iter] + list(i.shape[:-1])
         obj_all = np.empty(sz)
 
     if bkg is None:
         bkg = np.zeros(i.shape)
-
-    if pad is not None:
-        h = PadDataset(h, pad)
-        i = PadDataset(i, pad)
 
     N = i.shape[-1]
 
@@ -72,8 +72,7 @@ def MultiImg_RL_FFT(
         if out == "last":
             obj = UnpadDataset(obj, pad)
         elif out == "all":
-            for n in range(max_iter):
-                obj_all[n] = UnpadDataset(obj_all[n], pad)
+            obj_all = obj_all[:, pad:-pad, pad:-pad, ...]
 
     if out == "last":
         return obj
