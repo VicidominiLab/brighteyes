@@ -1,6 +1,7 @@
 # Origin: VicidominiLab/s2ISM, src/s2ism/__init__.py at 10bb5fc.
 """Reconstruct s2ISM images and load MCS data."""
 
+from ....convolution import partial_convolution_rfft
 from ._dataio import (
     is_mcs_file,
     list_mcs_datasets,
@@ -13,7 +14,6 @@ from ._reconstruct import (
     batch_reconstruction,
     data_driven_reconstruction,
     max_likelihood_reconstruction,
-    partial_convolution_rfft,
 )
 
 __all__ = [
