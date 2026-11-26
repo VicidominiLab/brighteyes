@@ -1,5 +1,4 @@
 # Origin: VicidominiLab/BrightEyes-ISM, src/brighteyes_ism/analysis/Deconv_lib.py at d799720.
-# ruff: noqa: N999
 """Image deconvolution algorithms."""
 
 from __future__ import annotations
@@ -12,11 +11,11 @@ from scipy.ndimage import laplace
 from scipy.signal import convolve
 from tqdm import tqdm
 
-from .. import utils as FRC
-from ..extraction import apr as APR
+from .... import utils as FRC
+from ... import apr as APR
 
 if TYPE_CHECKING:
-    from .._types import Array
+    from ...._types import Array
 
 
 def gauss2d(X: Array, Y: Array, mux: float, muy: float, sigma: float) -> Array:

@@ -1,6 +1,24 @@
 """Record moved definitions and intentional removals."""
 
 _module_moves = {
+    (
+        "brighteyes_ism.analysis.Deconv_lib",
+        "brighteyes.imaging.extraction.deconv.ism",
+    ): (
+        "FRC_MultiImg_RL_FFT",
+        "FRC_MultiImg_RL_FFT_2",
+        "MultiImg_RL_FFT",
+        "MultiImg_RL_FFT_2",
+        "PSF_FRC",
+        "PadDataset",
+        "UnpadDataset",
+        "convolution_matrix",
+        "deconv_RL_FFT",
+        "deconv_Wiener",
+        "deconv_Wiener_FFT",
+        "disk2d",
+        "gauss2d",
+    ),
     ("brighteyes_ism.analysis.FRC_lib", "brighteyes.imaging.utils"): (
         "FRC",
         "FRC_resolution",

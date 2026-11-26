@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pytest
 
-from brighteyes.imaging.analysis.Deconv_lib import FRC_MultiImg_RL_FFT_2
+from brighteyes.imaging.extraction.deconv.ism import FRC_MultiImg_RL_FFT_2
 from brighteyes.imaging.flism import FlimData
 from brighteyes.imaging.plotting import depth_stack
 
@@ -26,11 +26,11 @@ def test_frc_multi_image_deconvolution_uses_six_value_resolution_result(
     frc_result = (0.5, *(np.array([], dtype=np.float64) for _ in range(5)))
     shifts = np.zeros((2, 2), dtype=np.float64)
     monkeypatch.setattr(
-        "brighteyes.imaging.analysis.Deconv_lib.FRC.FRC_resolution",
+        "brighteyes.imaging.extraction.deconv.ism._deconvolution.FRC.FRC_resolution",
         lambda *_args, **_kwargs: frc_result,
     )
     monkeypatch.setattr(
-        "brighteyes.imaging.analysis.Deconv_lib.APR.APR",
+        "brighteyes.imaging.extraction.deconv.ism._deconvolution.APR.APR",
         lambda *_args, **_kwargs: (shifts, None),
     )
 
