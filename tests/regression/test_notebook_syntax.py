@@ -21,3 +21,12 @@ def test_download_notebook_cells_compile(notebook: str) -> None:
     for index, cell in enumerate(cells):
         if cell["cell_type"] == "code":
             compile("".join(cell["source"]), f"{notebook}-cell-{index}", "exec")
+
+
+@pytest.mark.parametrize("notebook", NOTEBOOKS)
+def test_download_notebook_cells_have_ids(notebook: str) -> None:
+    """Give every cell an id where the notebook format requires one."""
+    filename = Path(__file__).resolve().parents[2] / notebook
+    content = json.loads(filename.read_text("utf-8"))
+    if (content["nbformat"], content["nbformat_minor"]) >= (4, 5):
+        assert all("id" in cell for cell in content["cells"])
