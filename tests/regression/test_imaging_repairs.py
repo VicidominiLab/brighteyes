@@ -12,6 +12,7 @@ import numpy as np
 import pytest
 
 from brighteyes.imaging import flism
+from brighteyes.imaging.extraction.deconv.ism import MultiImg_RL_FFT
 from brighteyes.imaging.flism import FlimData
 from brighteyes.imaging.plotting import depth_stack
 from brighteyes.mcs.dataprep import Alignment
@@ -67,3 +68,23 @@ def test_fit_maps_work_after_importing_flism() -> None:
     for generate_fit_maps in (Alignment.generate_fit_maps, flism.generate_fit_maps):
         maps = generate_fit_maps(data, irf, time, 25.0, show_progress=False)
         assert maps["tau"].shape == (2, 2)
+
+
+def test_multi_image_deconvolution_pads_with_default_background() -> None:
+    """Deconvolve padded images when no background is given."""
+    images = np.random.default_rng(0).poisson(5, (16, 16, 3)).astype(float)
+    result = MultiImg_RL_FFT(np.ones((5, 5, 3)), images, max_iter=2, pad=2)
+    assert result is not None
+    assert result.shape == (16, 16)
+    assert np.isfinite(result).all()
+
+
+def test_multi_image_deconvolution_returns_every_padded_iteration() -> None:
+    """Return each unpadded iteration, ending with the single-result output."""
+    images = np.random.default_rng(0).poisson(5, (16, 16, 3)).astype(float)
+    psf = np.ones((5, 5, 3))
+    every = MultiImg_RL_FFT(psf, images, max_iter=2, pad=2, out="all")
+    last = MultiImg_RL_FFT(psf, images, max_iter=2, pad=2)
+    assert every is not None
+    assert every.shape == (2, 16, 16)
+    np.testing.assert_array_equal(every[-1], last)
