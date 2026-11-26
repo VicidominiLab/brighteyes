@@ -45,4 +45,7 @@ def test_distributions_include_imaging_without_deferred_modules(tmp_path) -> Non
             for name in names
         )
         assert "src/brighteyes/imaging/analysis/APR_lib.py" in names
+        assert "src/brighteyes/imaging/utils/_frc.py" in names
+        assert "src/brighteyes/imaging/plotting/_images.py" in names
+        assert "src/brighteyes/imaging/psf/sim/_psf.py" in names
         assert "src/brighteyes/mcs/reader/reader.py" in names

@@ -19,7 +19,7 @@ def test_kl_diagnostic_preserves_plane_and_iteration_axes() -> None:
     factors = np.array([[1.0, 1.0], [2.0, 4.0], [4.0, 2.0]])
     context = {
         "np": np,
-        "tools": import_module("brighteyes.imaging.analysis.Tools_lib"),
+        "tools": import_module("brighteyes.imaging.utils"),
         "ground_truth": ground_truth,
         "recon_ph": factors[:, :, None, None] * ground_truth,
     }

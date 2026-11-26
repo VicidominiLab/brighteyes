@@ -3,7 +3,6 @@
 # Origin: VicidominiLab/BrightEyes-ISM, src/brighteyes_ism/analysis/Tools_lib.py at d799720.
 from __future__ import annotations
 
-# ruff: noqa: N999
 from collections.abc import Callable
 from typing import TYPE_CHECKING, cast
 
@@ -13,7 +12,7 @@ from scipy.optimize import curve_fit
 from scipy.special import kl_div as kullback_leibler
 from scipy.special import rel_entr
 
-from .FRC_lib import radial_profile
+from ._frc import radial_profile
 
 if TYPE_CHECKING:
     from numpy.typing import NDArray

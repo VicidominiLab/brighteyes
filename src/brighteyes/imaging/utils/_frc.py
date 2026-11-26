@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-# ruff: noqa: N999
 from typing import TYPE_CHECKING
 
 import matplotlib.pyplot as plt
@@ -15,7 +14,7 @@ from matplotlib.figure import Figure
 from scipy.optimize import curve_fit
 from statsmodels.nonparametric.smoothers_lowess import lowess
 
-from ._windows import hann_window_2d
+from ..analysis._windows import hann_window_2d
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Sequence

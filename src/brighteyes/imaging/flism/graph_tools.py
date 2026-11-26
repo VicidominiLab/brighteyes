@@ -21,7 +21,7 @@ if TYPE_CHECKING:
 
 try:
     gra: Any
-    import brighteyes.imaging.analysis.Graph_lib as gra
+    import brighteyes.imaging.plotting as gra
 except ImportError:  # pragma: no cover - optional dependency
     gra = None
 
@@ -47,9 +47,7 @@ FloatArray = NDArray[np.float64]
 
 def _require_graph_lib() -> None:
     if gra is None:
-        raise ImportError(
-            "FLIM map plotting requires brighteyes.imaging.analysis.Graph_lib"
-        )
+        raise ImportError("FLIM map plotting requires brighteyes.imaging.plotting")
 
 
 def crop_2d(array: ArrayLike, crop: int = 0) -> Array:

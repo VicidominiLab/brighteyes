@@ -11,7 +11,7 @@ from numpy.typing import NDArray
 from skimage.draw import polygon
 from torchvision.transforms.functional import rotate
 
-from .utils import partial_convolution
+from ...convolution import partial_convolution
 
 Array = NDArray[np.int64]
 FloatArray = NDArray[np.float64]

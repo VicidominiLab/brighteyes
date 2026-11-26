@@ -1,4 +1,112 @@
 """Record moved definitions and intentional removals."""
 
-paths: dict[str, str] = {}
+_module_moves = {
+    ("brighteyes_ism.analysis.FRC_lib", "brighteyes.imaging.utils"): (
+        "FRC",
+        "FRC_resolution",
+        "fixed_threshold",
+        "hann2d",
+        "nsigma_threshold",
+        "plotFRC",
+        "radial_profile",
+        "smooth",
+        "timeFRC",
+    ),
+    ("brighteyes_ism.analysis.Tools_lib", "brighteyes.imaging.utils"): (
+        "ArgMaxND",
+        "CropEdge",
+        "DownSample",
+        "FWHM",
+        "GaussMultVar",
+        "RadialSpectrum",
+        "Reorder",
+        "UpSample",
+        "check_saturation",
+        "fingerprint",
+        "fit_to_gaussian",
+        "kl_divergence",
+        "low_pass",
+        "normalized_absolute_difference",
+        "point_cloud_from_img",
+        "sigmoid",
+    ),
+    ("brighteyes_ism.analysis.Graph_lib", "brighteyes.imaging.plotting"): (
+        "ColorMap2D",
+        "PlotShiftVectors",
+        "ShowDataset",
+        "ShowFingerprint",
+        "ShowImg",
+        "ShowStack",
+        "StackSlider",
+        "depth_stack",
+        "show_flim",
+    ),
+    ("brighteyes_ism.simulation.detector", "brighteyes.imaging.psf.sim"): (
+        "airy_to_hex",
+        "circle",
+        "custom_detector",
+        "det_coords",
+        "hex_grid",
+        "hex_to_airy",
+        "hexagon",
+        "pinhole_array",
+        "rect_grid",
+        "square",
+        "transform_detector",
+    ),
+    ("brighteyes_ism.simulation.PSF_sim", "brighteyes.imaging.psf.sim"): (
+        "GridParameters",
+        "SPAD_PSF_2D",
+        "SPAD_PSF_3D",
+        "simSettings",
+        "singlePSF",
+    ),
+    ("s2ism.mag_finder", "brighteyes.imaging.psf.finder.mag_finder"): (
+        "find_mag",
+        "loss_minimizer",
+        "loss_shift",
+        "rect",
+        "scalar_psf",
+        "scalar_psf_det",
+        "shift_value",
+    ),
+    (
+        "s2ism.shift_vectors_minimizer",
+        "brighteyes.imaging.psf.finder.shift_vectors_minimizer",
+    ): (
+        "calc_shift_vectors",
+        "crop_shift",
+        "find_parameters",
+        "loss_minimizer",
+        "loss_shifts",
+        "mirror_matrix",
+        "rotation_matrix",
+        "shift_matrix",
+        "transform_shift_vectors",
+    ),
+    ("s2ism.psf_estimator", "brighteyes.imaging.psf.finder.psf_estimator"): (
+        "GridFinder",
+        "combine_psf_irf",
+        "conditioning",
+        "find_max_discrepancy",
+        "find_out_of_focus",
+        "find_out_of_focus_from_param",
+        "find_upsampling",
+        "psf_estimator_from_data",
+        "psf_width",
+    ),
+    ("s2ism.misalignment", "brighteyes.imaging.psf.finder.misalignment"): (
+        "find_misalignment",
+        "gaussian_2d",
+        "gaussian_fit",
+        "realign_psf",
+        "residuals",
+    ),
+}
+
+paths = {
+    f"{old}:{name}": f"{new}:{name}"
+    for (old, new), names in _module_moves.items()
+    for name in names
+}
 removed: dict[str, str] = {}

@@ -12,8 +12,8 @@ from scipy.ndimage import laplace
 from scipy.signal import convolve
 from tqdm import tqdm
 
+from .. import utils as FRC
 from . import APR_lib as APR
-from . import FRC_lib as FRC
 
 if TYPE_CHECKING:
     from .._types import Array

@@ -19,6 +19,8 @@ CPU = torch.device("cpu")
 
 
 def _psf_sim(module):
+    if module.__name__.startswith("brighteyes.imaging."):
+        return import_module("brighteyes.imaging.psf.sim")
     return import_module(f"{module.__package__}.PSF_sim")
 
 

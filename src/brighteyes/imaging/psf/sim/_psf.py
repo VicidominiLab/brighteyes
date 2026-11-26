@@ -4,8 +4,6 @@
 from __future__ import annotations
 
 import copy as cp
-
-# ruff: noqa: N999
 from collections.abc import Sequence
 from numbers import Number
 from typing import cast
@@ -17,8 +15,8 @@ from psf_generator.propagators import VectorialCartesianPropagator
 from psf_generator.utils.zernike import create_special_pupil, create_zernike_aberrations
 from zernikepy.zernike_polynomials import lookup_table
 
-from .detector import custom_detector
-from .utils import partial_convolution
+from ...convolution import partial_convolution
+from ._detector import custom_detector
 
 Array = NDArray[np.float64]
 
