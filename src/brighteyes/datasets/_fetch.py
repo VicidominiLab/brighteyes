@@ -1,22 +1,14 @@
-"""Resolve packaged inputs and cache verified remote files."""
+"""Resolve packaged inputs and retrieve published measurements."""
 
 import hashlib
 import json
-import logging
-import os
-import tempfile
 from pathlib import Path
+from typing import Any
 
-import requests
+import pooch
 
 data_dir = Path(__file__).with_name("data")
 catalog = json.loads(Path(__file__).with_name("_catalog.json").read_text("utf-8"))
-cache_dir = (
-    Path(os.environ.get("LOCALAPPDATA", Path.home() / "AppData" / "Local"))
-    if os.name == "nt"
-    else Path(os.environ.get("XDG_CACHE_HOME", Path.home() / ".cache"))
-) / "brighteyes"
-logger = logging.getLogger(__name__)
 
 
 def verify(path: Path, size: int, checksum: str) -> None:
@@ -33,17 +25,18 @@ def verify(path: Path, size: int, checksum: str) -> None:
 
 
 def fetch(name: str) -> Path:
-    """Return a verified example input, downloading remote entries if needed.
+    """Return a verified example input, downloading published files if needed.
 
-    Small inputs are packaged locally. Full measurements download into the
-    user cache and are reused when their size and checksum match.
+    Small inputs are packaged locally. Published measurements download once
+    into the user cache and are checked against their hash. A name that refers
+    to a file inside a published archive extracts only that file.
 
     Raises
     ------
     ValueError
-        If the name is unknown or the file fails integrity checks.
+        If the name is unknown or a file fails its integrity check.
     requests.RequestException
-        If a remote request fails.
+        If a download fails.
     OSError
         If the input or cache cannot be read or written.
     """
@@ -55,44 +48,21 @@ def fetch(name: str) -> Path:
         verify(path, entry["size"], "sha256:" + entry["sha256"])
         return path
 
-    checksum = entry["checksum"]
-    path = cache_dir / checksum.replace(":", "-") / entry["filename"]
-    if path.exists():
-        try:
-            verify(path, entry["size"], checksum)
-        except ValueError:
-            pass
-        else:
-            return path
+    if "archive" not in entry:
+        return Path(retrieve(entry))
+    extracted = retrieve(
+        catalog[entry["archive"]], processor=pooch.Unzip(members=[entry["member"]])
+    )
+    return Path(extracted[0])
 
-    path.parent.mkdir(parents=True, exist_ok=True)
-    logger.warning("Downloading %s (%s bytes)", name, entry["size"])
-    temporary = None
-    try:
-        with requests.get(
-            entry["url"],
-            stream=True,
-            timeout=(10, 60),
-            headers={"User-Agent": "brighteyes-dev"},
-        ) as response:
-            response.raise_for_status()
-            with tempfile.NamedTemporaryFile(dir=path.parent, delete=False) as stream:
-                temporary = Path(stream.name)
-                algorithm, _ = checksum.split(":", 1)
-                digest = hashlib.new(algorithm, usedforsecurity=False)
-                size = 0
-                for chunk in response.iter_content(chunk_size=1024 * 1024):
-                    size += len(chunk)
-                    if size > entry["size"]:
-                        raise ValueError(f"dataset size mismatch: {name}")
-                    stream.write(chunk)
-                    digest.update(chunk)
-            if size != entry["size"]:
-                raise ValueError(f"dataset size mismatch: {name}")
-            if digest.hexdigest() != checksum.split(":", 1)[1]:
-                raise ValueError(f"dataset checksum mismatch: {name}")
-            temporary.replace(path)
-    finally:
-        if temporary is not None:
-            temporary.unlink(missing_ok=True)
-    return path
+
+def retrieve(entry: dict[str, str], **kwargs: Any) -> Any:
+    """Download a published file into the user cache unless it is already there."""
+    return pooch.retrieve(
+        url=entry["url"],
+        known_hash=entry["checksum"],
+        fname=entry["filename"],
+        path=pooch.os_cache("brighteyes"),
+        progressbar=True,
+        **kwargs,
+    )
