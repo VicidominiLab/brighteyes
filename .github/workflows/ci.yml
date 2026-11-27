@@ -102,6 +102,19 @@ jobs:
           IMAGING_DIAGNOSTICS_DIR: imaging-diagnostics/repeat
         run: uv run --no-sync pytest tests/regression/test_deconv3.py tests/regression/test_examples.py -k "deconv3 or ism-frc" -q
 
+      - name: Capture BIRFI stages for diagnosis
+        if: failure() && steps.regressions.outcome == 'failure'
+        run: uv run --no-sync python scripts/probe_birfi_cpu.py imaging-diagnostics/probe
+
+      - name: Repeat the comparisons with MKL pinned to AVX2
+        if: failure() && steps.regressions.outcome == 'failure'
+        env:
+          MKL_CBWR: AVX2
+          IMAGING_DIAGNOSTICS_DIR: imaging-diagnostics/mkl-avx2
+        run: |
+          uv run --no-sync python scripts/probe_birfi_cpu.py imaging-diagnostics/mkl-avx2/probe
+          uv run --no-sync pytest tests/regression/test_deconv3.py "tests/regression/test_examples.py::test_example_matches_saved_cpu_result[birfi-simulation]" -q
+
       - name: Upload numerical comparison diagnostics
         if: always()
         uses: actions/upload-artifact@v7
